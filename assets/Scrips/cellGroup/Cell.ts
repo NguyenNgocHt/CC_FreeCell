@@ -13,10 +13,10 @@ export default class Cell extends cc.Component {
         if (!this.cards) {
             this.cards = [];
         }
-        card.Belong(this, this.cards.length);
         if (!this.cards.includes(card)) {
             this.cards.push(card);
         }
+        card.Belong(this, this.cards.length);
     }
     public GroupFrom(id: number): BaseCard[] {
         return this.cards.slice(id);

@@ -167,17 +167,17 @@ export default class Main extends cc.Component {
                 let cardNode = cc.instantiate(this.CardPrefab);
                 if (cardNode) {
                     cardNode.position = this.StartPosition.position;
-                    cardNode.setContentSize(85, 110);
-                    cardNode.setScale(0.5, 0.5, 0.5);
                     this.Temptransform.addChild(cardNode);
                     let card = cardNode.getComponent(BaseCard);
                     if (card) {
+                        card.SetContentSize();
                         card.Init(i, j, this.Temptransform, this);
                     }
                     this.cards.push(card);
                 }
             }
         }
+        let childs = this.Temptransform.children;
     }
     public Shuffle() {
         this.cards = this.cards !== null && this.cards !== undefined ? this.cards : this.cards = [];
@@ -196,7 +196,8 @@ export default class Main extends cc.Component {
             }
             this.StartPosition.addChild(this.cards[i].node);
             this.cards[i].node.setPosition(0, 0);
-            this.cards[i].node.setScale(0.5, 0.5, 0.5);
+        }
+        for (let i = 0; i < this.cards.length; i++) {
         }
     }
     public DealCard()//phát bài 
@@ -211,6 +212,7 @@ export default class Main extends cc.Component {
             // GameManager.Instance.CloseLoading();// nếu mà i >= lượng quân bài trên bàn thì return không làm gi hết
             return;
         }
+        this.cards[i].node.setContentSize(85, 110);
         let Position: cc.Vec3;
         let worldPosition: cc.Vec3;
         //nếu như i < só lượng quân bài thì cho phép chia bài
@@ -225,7 +227,7 @@ export default class Main extends cc.Component {
         }
         let localTargetPosition = this.cards[i].node.parent.convertToNodeSpaceAR(worldPosition);
         cc.tween(this.cards[i].node)
-            .to(0.2, { position: new cc.Vec3(localTargetPosition) })
+            .to(0.1, { position: new cc.Vec3(localTargetPosition) })
             .call(() => {
                 let cardNode = this.cards[i].node;
                 if (cardNode.parent) {

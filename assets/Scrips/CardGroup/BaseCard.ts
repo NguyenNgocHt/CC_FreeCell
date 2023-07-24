@@ -22,6 +22,12 @@ export class BaseCard extends cc.Component {
     private cell: Cell;
     private id: number;
     private imagesPath: PATH_TO_CARDS;
+    private width: number = 85;
+    private hight: number = 110;
+    
+    public SetContentSize() {
+        this.node.setContentSize(this.width, this.hight);
+    }
     public Init(number: number, type: CardTypeStatus, temp: cc.Node, main: Main) {
         this.number_index = number;
         this.type = type;
@@ -32,6 +38,7 @@ export class BaseCard extends cc.Component {
         this.imgSelect.getComponent(cc.Sprite).enabled = false;
         this.tempNode = temp;
         this.mainGame = main;
+        this.node.setContentSize(this.width, this.hight);
     }
     public Select(on: boolean) {
         this.imgSelect.getComponent(cc.Sprite).enabled = on;
@@ -46,13 +53,19 @@ export class BaseCard extends cc.Component {
         this.mainGame.Log(this, this.cell);
     }
     public Belong(cell: Cell, id: number) {
+        console.log("CARD ID ", id);
         this.cell = cell;
         this.id = id;
         cell.node.addChild(this.node);
-        this.node.setScale(0.5, 0.5, 0.5);
+        this.node.setContentSize(this.width, this.hight);
         let parentNode = this.node.parent;
-        parentNode.getComponent(cc.Layout).updateLayout();
-        this.node.setPosition(cell.node.position.x, this.node.position.y);
+        // parentNode.getComponent(cc.Layout).updateLayout();
+        if (id == 1) {
+            this.node.setPosition(cell.node.position.x, this.node.position.y + 133);
+        }
+        else {
+            this.node.setPosition(cell.node.position.x, this.node.position.y + 80);
+        }
     }
     public IsInOrderWithCard(card: BaseCard): boolean {
         return this.IsInColor(card) && this.IsInOrder(card, false);

@@ -23,7 +23,7 @@ export default class CardMove extends cc.Component {
         console.log("Mouse down");
         let mousePos = event.getLocation();
         let newPos = new cc.Vec3(mousePos.x, mousePos.y, 0);
-        this.node.parent.position = this.node.parent.convertToNodeSpaceAR(newPos);
+        this.node.position = this.node.parent.convertToNodeSpaceAR(newPos);
         this.isMoving = true;
     }
 
@@ -33,7 +33,7 @@ export default class CardMove extends cc.Component {
             // Lấy tọa độ của touchMove
             const mousePos = event.getLocation();
             const newPos = cc.v3(mousePos.x, mousePos.y, 0);
-            this.node.parent.position = this.node.parent.convertToNodeSpaceAR(newPos);
+            this.node.position = this.node.parent.convertToNodeSpaceAR(newPos);
         }
     }
     private onCardTouchEnd(event: cc.Event.EventTouch) {
