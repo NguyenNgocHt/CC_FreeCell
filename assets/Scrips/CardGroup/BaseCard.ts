@@ -27,7 +27,7 @@ export class BaseCard extends cc.Component {
         this.type = type;
         let nameImage = Helper.Instance.ParseCard(number, type);
         LoadImages.Instance.LoadingImages("Images/Card2/", nameImage, (spriteFrame) => {
-            this.SpriteCard.getComponent(cc.Sprite).spriteFrame = spriteFrame;
+            this.node.getComponent(cc.Sprite).spriteFrame = spriteFrame;
         });
         this.imgSelect.getComponent(cc.Sprite).enabled = false;
         this.tempNode = temp;

@@ -13,6 +13,7 @@ import GameData from "../gameData/GameData";
 import { CardTypeStatus } from "../CardGroup/CardType";
 import CheckRandomNumber from "../common/CheckRandomNumber";
 import { GameManager } from "./GameManager";
+import CardMove from "../CardGroup/CardMove";
 const { ccclass, property } = cc._decorator;
 export class CardLog {
     public card: BaseCard;
@@ -179,20 +180,14 @@ export default class Main extends cc.Component {
         }
     }
     public Shuffle() {
-        console.log("Bat dau trao bai");
         this.cards = this.cards !== null && this.cards !== undefined ? this.cards : this.cards = [];
         let n = this.cards.length;
         while (n >= 1) {
-            console.log("trao bai");
             let k = CheckRandomNumber.Instance.getRandomValidNumber(0, n);
             n--;
             let value = this.cards[k];
             this.cards[k] = this.cards[n];
             this.cards[n] = value;
-        }
-        for (let i = 0; i < this.cards.length; i++) {
-            console.log(this.cards[i]);
-            console.log(this.cards[i].node.position);
         }
         for (let i = this.cards.length - 1; i >= 0; i--) {
             let cardNode = this.cards[i].node;
@@ -202,9 +197,7 @@ export default class Main extends cc.Component {
             this.StartPosition.addChild(this.cards[i].node);
             this.cards[i].node.setPosition(0, 0);
             this.cards[i].node.setScale(0.5, 0.5, 0.5);
-            console.log("add child lan " + `${i}`, i);
         }
-        console.log("da nhay vao day");
     }
     public DealCard()//phát bài 
     {
@@ -214,12 +207,10 @@ export default class Main extends cc.Component {
     }
     public AnimateDeal(i: number)// hoạt động phát bài
     {
-        console.log("chia bai");
         if (i >= this.cards.length) {
             // GameManager.Instance.CloseLoading();// nếu mà i >= lượng quân bài trên bàn thì return không làm gi hết
             return;
         }
-        console.log("chia bai start");
         let Position: cc.Vec3;
         let worldPosition: cc.Vec3;
         //nếu như i < só lượng quân bài thì cho phép chia bài
@@ -233,11 +224,8 @@ export default class Main extends cc.Component {
             worldPosition = this.Cells[n].node.parent.convertToWorldSpaceAR(this.Cells[n].node.position);
         }
         let localTargetPosition = this.cards[i].node.parent.convertToNodeSpaceAR(worldPosition);
-        console.log("position start", Position);
-        console.log("world position start", worldPosition);
-        console.log(this.Cells[n].node.position);
         cc.tween(this.cards[i].node)
-            .to(0.1, { position: new cc.Vec3(localTargetPosition) })
+            .to(0.2, { position: new cc.Vec3(localTargetPosition) })
             .call(() => {
                 let cardNode = this.cards[i].node;
                 if (cardNode.parent) {
