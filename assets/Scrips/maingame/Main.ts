@@ -170,7 +170,6 @@ export default class Main extends cc.Component {
                     this.Temptransform.addChild(cardNode);
                     let card = cardNode.getComponent(BaseCard);
                     if (card) {
-                        card.SetContentSize();
                         card.Init(i, j, this.Temptransform, this);
                     }
                     this.cards.push(card);
@@ -204,7 +203,7 @@ export default class Main extends cc.Component {
     {
         // GameManager.Instance.ShowLoading();
         // SoundManager.Instance.OnPlaySound("deal");
-        this.AnimateDeal(0);
+        // this.AnimateDeal(0);
     }
     public AnimateDeal(i: number)// hoạt động phát bài
     {

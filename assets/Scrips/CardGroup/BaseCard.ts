@@ -25,9 +25,6 @@ export class BaseCard extends cc.Component {
     private width: number = 85;
     private hight: number = 110;
     
-    public SetContentSize() {
-        this.node.setContentSize(this.width, this.hight);
-    }
     public Init(number: number, type: CardTypeStatus, temp: cc.Node, main: Main) {
         this.number_index = number;
         this.type = type;
@@ -38,7 +35,6 @@ export class BaseCard extends cc.Component {
         this.imgSelect.getComponent(cc.Sprite).enabled = false;
         this.tempNode = temp;
         this.mainGame = main;
-        this.node.setContentSize(this.width, this.hight);
     }
     public Select(on: boolean) {
         this.imgSelect.getComponent(cc.Sprite).enabled = on;
