@@ -23,6 +23,17 @@ export default class Cell extends cc.Component {
         }
         this.node.addChild(card.node);
         card.Belong(this.node, this.cards.length);
+        this.SetPositionAllChild();
+    }
+    SetPositionAllChild() {
+        let childs = this.node.children;
+        for (let i = 0; i < childs.length; i++) {
+            if (childs[i].getComponent(BaseCard).id == 1) {
+                childs[i].setPosition(this.node.position.x, this.node.position.y)
+            } else {
+                childs[i].setPosition(this.node.position.x, this.node.position.y - i * 50);
+            }
+        }
     }
     public GroupFrom(id: number): BaseCard[] {
         return this.cards.slice(id);

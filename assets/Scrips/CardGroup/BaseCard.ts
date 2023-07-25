@@ -22,13 +22,15 @@ export class BaseCard extends cc.Component {
     imgSelect: cc.Node = null;
     private mainGame: Main;
     private cell: Cell;
-    private id: number;
+    public id: number;
     private imagesPath: PATH_TO_CARDS;
     private width: number = 85;
     private hight: number = 110;
     private originIndex: number = 0;
     public tag_group: number;
     private colliderNode: cc.Node = null;
+    private isInit: boolean = false;
+    public isMoving: boolean = false;
 
     public Init(number: number, type: CardTypeStatus, temp: cc.Node, main: Main) {
         this.number_index = number;
@@ -54,17 +56,14 @@ export class BaseCard extends cc.Component {
         this.mainGame.Log(this, this.cell);
     }
     public Belong(cell: cc.Node, id: number) {
+        this.isInit = true;
         this.cell = cell.getComponent(Cell);
         this.tag_group = this.cell.Tag;
         this.id = id;
-        if (id == 1) {
-            this.node.setPosition(this.cell.node.position.x, this.node.position.y + 133, 0);
-        }
-        else {
-            this.node.setPosition(this.cell.node.position.x, this.node.position.y + 80, 0);
-        }
         if (this.node.getComponent(CardMove)) {
-            this.node.getComponent(CardMove).RegisterEvent();
+            let cardMove = this.node.getComponent(CardMove);
+            cardMove.RegisterEvent();
+            cardMove.isMoving = false;
         }
         this.colliderNode = this.node.getChildByName("CardCollider");
         if (!this.colliderNode.getComponent(CardColliders)) {
@@ -93,9 +92,12 @@ export class BaseCard extends cc.Component {
     }
     public OnClick_AddCardMove() {
         if (!this.node.getComponent(CardMove)) {
-            this.node.addComponent(CardMove);
-            this.originIndex = this.node.parent.parent.getSiblingIndex();
-            this.node.parent.parent.setSiblingIndex(9);
+            if (this.CheckLastElementOfArray) {
+                console.log("add card move")
+                this.node.addComponent(CardMove);
+                this.originIndex = this.node.parent.parent.getSiblingIndex();
+                this.node.parent.parent.setSiblingIndex(9);
+            }
         }
     }
     public ClearCardMove() {
@@ -111,10 +113,29 @@ export class BaseCard extends cc.Component {
         console.log('colliderTag', collider.tag);
     }
     public CheckLastElementOfArray(): boolean {
-        let nodeIndex = this.node.getSiblingIndex();
-        if (nodeIndex == this.node.parent.children.length - 1) {
-            return true;
+        if (this.isInit) {
+            let nodeIndex = this.node.getSiblingIndex();
+            if (nodeIndex == this.node.parent.children.length - 1) {
+                console.log(nodeIndex);
+                console.log("parent index", this.node.parent.children.length - 1)
+                return true;
+            }
+        } else {
+            return null;
         }
-        return false;
+
+    }
+    public GetIsMoving(): boolean {
+        if (this.node.getComponent(CardMove)) {
+            let cardMove = this.node.getComponent(CardMove);
+            return cardMove.isMoving;
+        } else {
+            return false;
+        }
+    }
+    public SetIsInputCell(isInput: boolean) {
+        if (this.node.getComponent(CardMove)) {
+            this.node.getComponent(CardMove).isInputCell = isInput;
+        }
     }
 }

@@ -5,7 +5,8 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class CardMove extends cc.Component {
-    private isMoving: boolean = false;
+    public isMoving: boolean = false;
+    public isInputCell: boolean = false;
     private isStartMouseEvent: boolean = false;
     private originPosition: cc.Vec3;
     protected onLoad(): void {
@@ -41,13 +42,17 @@ export default class CardMove extends cc.Component {
         }
     }
     private onCardTouchEnd(event: cc.Event.EventTouch) {
-        cc.tween(this.node)
-            .to(0.1, { position: new cc.Vec3(this.originPosition) })
-            .call(() => {
-                this.isMoving = false;
-                this.node.getComponent(BaseCard).ClearCardMove();
-            })
-            .start();
-
+        if (!this.isInputCell) {
+            cc.tween(this.node)
+                .to(0.1, { position: new cc.Vec3(this.originPosition) })
+                .call(() => {
+                    this.isMoving = false;
+                    this.node.getComponent(BaseCard).ClearCardMove();
+                })
+                .start();
+        } else {
+            this.isMoving = false;
+            this.node.getComponent(BaseCard).ClearCardMove();
+        }
     }
 }
