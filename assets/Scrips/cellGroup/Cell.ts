@@ -4,6 +4,8 @@ const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Cell extends cc.Component {
+    @property
+    Tag: number;
     private cards: BaseCard[];
     public id: number;
     start() {
@@ -16,7 +18,11 @@ export default class Cell extends cc.Component {
         if (!this.cards.includes(card)) {
             this.cards.push(card);
         }
-        card.Belong(this, this.cards.length);
+        if (card.node.parent) {
+            card.node.removeFromParent();
+        }
+        this.node.addChild(card.node);
+        card.Belong(this.node, this.cards.length);
     }
     public GroupFrom(id: number): BaseCard[] {
         return this.cards.slice(id);

@@ -54,6 +54,8 @@ export default class Main extends cc.Component {
     // onLoad () {}
 
     start() {
+        var manager = cc.director.getCollisionManager();
+        manager.enabled = true;
         this.StartGame();
         // this.AddDataListener();
     }
@@ -190,48 +192,36 @@ export default class Main extends cc.Component {
         }
         for (let i = this.cards.length - 1; i >= 0; i--) {
             let cardNode = this.cards[i].node;
-            if (cardNode.parent) {
-                cardNode.removeFromParent();
+            if (this.cards[i].node.parent) {
+                this.cards[i].node.removeFromParent();
             }
             this.StartPosition.addChild(this.cards[i].node);
             this.cards[i].node.setPosition(0, 0);
-        }
-        for (let i = 0; i < this.cards.length; i++) {
         }
     }
     public DealCard()//phát bài 
     {
         // GameManager.Instance.ShowLoading();
         // SoundManager.Instance.OnPlaySound("deal");
-        // this.AnimateDeal(0);
+        this.AnimateDeal(0);
     }
     public AnimateDeal(i: number)// hoạt động phát bài
     {
         if (i >= this.cards.length) {
-            // GameManager.Instance.CloseLoading();// nếu mà i >= lượng quân bài trên bàn thì return không làm gi hết
+            // GameManager.Instance.CloseLoading();
             return;
         }
-        this.cards[i].node.setContentSize(85, 110);
-        let Position: cc.Vec3;
         let worldPosition: cc.Vec3;
-        //nếu như i < só lượng quân bài thì cho phép chia bài
-        let n = i % this.Cells.length;// n bắt đầu từ 0 sau một vong i chạy từ 0 đến 7 thì n tăng lên 1 vậy list cell sẽ chạy từ n = 0 cho đến n = 7;
-        // worldPosition = this.Cells[n].TopCard() == null ? this.Cells[n].node.position : this.Cells[n].TopCard().node.position;
+        let n = i % this.Cells.length;
         if (this.Cells[n].TopCard()) {
-            Position = this.Cells[n].TopCard().node.position;
             worldPosition = this.Cells[n].TopCard().node.parent.convertToWorldSpaceAR(this.Cells[n].TopCard().node.position);
         } else {
-            Position = this.Cells[n].node.position;
             worldPosition = this.Cells[n].node.parent.convertToWorldSpaceAR(this.Cells[n].node.position);
         }
         let localTargetPosition = this.cards[i].node.parent.convertToNodeSpaceAR(worldPosition);
         cc.tween(this.cards[i].node)
             .to(0.1, { position: new cc.Vec3(localTargetPosition) })
             .call(() => {
-                let cardNode = this.cards[i].node;
-                if (cardNode.parent) {
-                    cardNode.removeFromParent();
-                }
                 this.Cells[i % this.Cells.length].Add(this.cards[i]);
                 this.AnimateDeal(i + 1);
             })

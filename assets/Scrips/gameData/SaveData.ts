@@ -6,7 +6,7 @@
 //  - https://docs.cocos.com/creator/2.4/manual/en/scripting/life-cycle-callbacks.html
 
 import { CardTypeStatus } from "../CardGroup/CardType";
-import { MainGame } from "../maingame/MainGame";
+import Main from "../maingame/Main";
 const { ccclass, property } = cc._decorator;
 enum CellType { CELL, FREE, ACE }
 export class CardInfo {
@@ -77,7 +77,7 @@ export class GameSave {
         window.addEventListener("beforeunload", this.handleBeforeUnload.bind(this));
     }
     public SaveGame() {
-        this.saveData = MainGame.Instance.SaveGame();
+        this.saveData = Main.Instance.SaveGame();
         let data = JSON.stringify(this.saveData, null, 2);
         cc.sys.localStorage.setItem("GamePlayData", data);
     }
