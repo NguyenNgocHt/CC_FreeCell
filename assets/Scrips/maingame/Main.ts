@@ -14,6 +14,7 @@ import { CardTypeStatus } from "../CardGroup/CardType";
 import CheckRandomNumber from "../common/CheckRandomNumber";
 import { GameManager } from "./GameManager";
 import CardMove from "../CardGroup/CardMove";
+import { GAME_LISTEN_TO_EVENTS } from "../audio/config";
 const { ccclass, property } = cc._decorator;
 export class CardLog {
     public card: BaseCard;
@@ -37,11 +38,14 @@ export default class Main extends cc.Component {
     FreeCell: FreeCell[] = [];
     @property(AceCell)
     AceCell: AceCell[] = [];
+    @property(cc.Node)
+    Cell_intermediary: cc.Node = null;
     private logs: Stack<CardLog>;
     private newGame: boolean = false;
     private isAuto: boolean = false;
     private gameData: GameData;
     private cards: BaseCard[];
+    private cards_entermediary: BaseCard[];
     // LIFE-CYCLE CALLBACKS:
     //singleTon
     private static instance: Main | null = null;
@@ -58,6 +62,9 @@ export default class Main extends cc.Component {
         manager.enabled = true;
         this.StartGame();
         // this.AddDataListener();
+        for (let i = 0; i < this.Cells.length; i++) {
+            this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY, this.GetDataForCardsEntermediary, this);
+        }
     }
     StartGame() {
         console.log("new game");
@@ -227,4 +234,22 @@ export default class Main extends cc.Component {
             })
             .start();
     }
+    GetDataForCardsEntermediary(base_card: BaseCard[]) {
+        this.cards_entermediary = [];
+        this.cards_entermediary = base_card;
+        console.log(this.cards_entermediary);
+        if (this.cards_entermediary) {
+            this.SetDataToCardIntermediary();
+        }
+    }
+    SetDataToCardIntermediary() {
+        let worldPositionCard = this.cards_entermediary[0].node.parent.convertToWorldSpaceAR(this.cards_entermediary[0].node.position);
+        let localPositionCard_entermediary = this.Cell_intermediary.parent.convertToNodeSpaceAR(worldPositionCard);
+        this.Cell_intermediary.setPosition(localPositionCard_entermediary.x, localPositionCard_entermediary.y + 55);
+        this.Cell_intermediary.setSiblingIndex(10);
+        for (let i = 0; i < this.cards_entermediary.length; i++) {
+            this.Cell_intermediary.getComponent(Cell).Add_cardEntermediary(this.cards_entermediary[i]);
+        }
+    }
+
 }

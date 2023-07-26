@@ -1,3 +1,4 @@
+import { MOUSE_STATUS } from "../audio/config";
 import Cell from "../cellGroup/Cell";
 import { BaseCard } from "./BaseCard";
 import { CardTypeStatus } from "./CardType";
@@ -20,19 +21,16 @@ export default class CardColliders extends cc.Component {
                     if (this.isInputOK && this._baseCard_other.isMoving == false && this._baseCard_self.isMoving == true) {
                         console.log("ăn được");
                         self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
+                        self.node.parent.getComponent(BaseCard).ClearCardMove();
                         other.node.parent.parent.getComponent(Cell).Add(self.node.parent.getComponent(BaseCard));
                     }
                 }
             }
-            console.log("on collision enter");
         } else {
             self.node.parent.getComponent(BaseCard).SetIsInputCell(false);
         }
     }
     onCollisionStay(other, self) {
-        if (self.tag != other.tag) {
-
-        }
     }
     onCollisionExit(other, self) {
     }

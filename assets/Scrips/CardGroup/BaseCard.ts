@@ -19,7 +19,7 @@ export class BaseCard extends cc.Component {
     @property(cc.Node)
     SpriteCard: cc.Node = null;
     @property(cc.Node)
-    imgSelect: cc.Node = null;
+    public imgSelect: cc.Node = null;
     private mainGame: Main;
     private cell: Cell;
     public id: number;
@@ -91,19 +91,23 @@ export class BaseCard extends cc.Component {
         return smaller ? this.number_index == (card.number_index - 1) : this.number_index == (card.number_index + 1);
     }
     public OnClick_AddCardMove() {
-        if (!this.node.getComponent(CardMove)) {
-            if (this.CheckLastElementOfArray) {
-                console.log("add card move")
-                this.node.addComponent(CardMove);
-                this.originIndex = this.node.parent.parent.getSiblingIndex();
-                this.node.parent.parent.setSiblingIndex(9);
-            }
-        }
+        // let CellNode = this.node.parent.getComponent(Cell);
+        // if (!this.node.getComponent(CardMove)) {
+        //     if (this.CheckLastElementOfArray) {
+        //         console.log("add card move")
+        //         this.node.addComponent(CardMove);
+        //         this.originIndex = this.node.parent.parent.getSiblingIndex();
+        //         this.node.parent.parent.setSiblingIndex(9);
+        //         // CellNode.SetPositionAllChild();
+        //         CellNode.CheckBaseCard(this.node.getSiblingIndex());
+        //     }
+        // }
     }
     public ClearCardMove() {
         if (this.node.getComponent(CardMove)) {
             this.node.parent.parent.setSiblingIndex(this.originIndex);
             this.node.removeComponent(CardMove);
+            console.log("clearn card move")
         }
     }
     private SetTagCollder() {
