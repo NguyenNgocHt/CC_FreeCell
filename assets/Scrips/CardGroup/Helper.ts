@@ -13,7 +13,6 @@ export default class Helper extends cc.Component {
         return this.instance;
     }
     public ParseCard(number: number, type: CardTypeStatus, kind: number = 0) {
-        console.log("TYPE = " + type);
         let result = "";
         if (kind == 1) {
             switch (number) {
@@ -35,10 +34,10 @@ export default class Helper extends cc.Component {
             result = result;
         } else {
             switch (type) {
-                case CardTypeStatus.CLUB: result += "a"; console.log("cong a"); break;
-                case CardTypeStatus.DIAMOND: result += "b"; console.log("cong b"); break;
-                case CardTypeStatus.SPADE: result += "c"; console.log("cong c"); break;
-                case CardTypeStatus.HEART: result += "d"; console.log("cong d"); break;
+                case CardTypeStatus.CLUB: result += "a"; break;
+                case CardTypeStatus.DIAMOND: result += "b"; break;
+                case CardTypeStatus.SPADE: result += "c"; break;
+                case CardTypeStatus.HEART: result += "d"; break;
             }
             result += number.toString();
             result = result;

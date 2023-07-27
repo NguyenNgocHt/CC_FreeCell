@@ -46,6 +46,7 @@ export default class Main extends cc.Component {
     private gameData: GameData;
     private cards: BaseCard[];
     private cards_entermediary: BaseCard[];
+    private ID_cell_old: number = 0;
     // LIFE-CYCLE CALLBACKS:
     //singleTon
     private static instance: Main | null = null;
@@ -62,9 +63,20 @@ export default class Main extends cc.Component {
         manager.enabled = true;
         this.StartGame();
         // this.AddDataListener();
+        this.EventRegister();
+
+    }
+    public EventRegister() {
         for (let i = 0; i < this.Cells.length; i++) {
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY, this.GetDataForCardsEntermediary, this);
         }
+        this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
+    }
+    protected onDisable(): void {
+        for (let i = 0; i < this.Cells.length; i++) {
+            this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY);
+        }
+        this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN);
     }
     StartGame() {
         console.log("new game");
@@ -234,9 +246,13 @@ export default class Main extends cc.Component {
             })
             .start();
     }
-    GetDataForCardsEntermediary(base_card: BaseCard[]) {
+    GetDataForCardsEntermediary(base_card: BaseCard[], ID_cell: number) {
+        this.ID_cell_old = ID_cell;
+        console.log("id cell old", this.ID_cell_old);
         this.cards_entermediary = [];
-        this.cards_entermediary = base_card;
+        for (let i = 0; i < base_card.length; i++) {
+            this.cards_entermediary.push(base_card[i]);
+        }
         console.log(this.cards_entermediary);
         if (this.cards_entermediary) {
             this.SetDataToCardIntermediary();
@@ -248,8 +264,24 @@ export default class Main extends cc.Component {
         this.Cell_intermediary.setPosition(localPositionCard_entermediary.x, localPositionCard_entermediary.y + 55);
         this.Cell_intermediary.setSiblingIndex(10);
         for (let i = 0; i < this.cards_entermediary.length; i++) {
-            this.Cell_intermediary.getComponent(Cell).Add_cardEntermediary(this.cards_entermediary[i]);
+            this.Cell_intermediary.getComponent(Cell).Add_cardEntermediary(this.cards_entermediary[i], this.ID_cell_old);
         }
     }
-
+    SetInputCardsEnterCellOld(id_CellOld: number) {
+        this.ID_cell_old = id_CellOld;
+        let childs = this.Cell_intermediary.children;
+        let test = [];
+        for (let i = 0; i < childs.length; i++) {
+            this.Cells[this.ID_cell_old].Add_InputCardsEnterCellOld(childs[i].getComponent(BaseCard));
+            test.push(childs[i])
+        }
+        this.Cell_intermediary.removeAllChildren();
+        for (let i = 0; i < test.length; i++) {
+            console.log("add children ", i);
+            this.Cells[this.ID_cell_old].node.addChild(test[i]);
+            this.Cells[this.ID_cell_old].SetPositionAllChildsAndOffActive();
+        }
+        console.log("cell old", this.Cells[this.ID_cell_old].node.children);
+    }
 }
+

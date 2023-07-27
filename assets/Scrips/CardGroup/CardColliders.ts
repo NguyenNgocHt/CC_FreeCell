@@ -1,6 +1,7 @@
 import { MOUSE_STATUS } from "../audio/config";
 import Cell from "../cellGroup/Cell";
 import { BaseCard } from "./BaseCard";
+import CardMove from "./CardMove";
 import { CardTypeStatus } from "./CardType";
 
 const { ccclass, property } = cc._decorator;
@@ -11,26 +12,26 @@ export default class CardColliders extends cc.Component {
     private _baseCard_self: BaseCard = new BaseCard();
     private isInputOK: boolean = false;
     onCollisionEnter(other, self) {
-        this.GetCardInfo(other, self);
-        if (this._baseCard_other.tag_group != this._baseCard_self.tag_group) {
-            if (((this._baseCard_other.type == CardTypeStatus.CLUB || this._baseCard_other.type == CardTypeStatus.SPADE) &&
-                (this._baseCard_self.type == CardTypeStatus.DIAMOND || this._baseCard_self.type == CardTypeStatus.HEART)) ||
-                ((this._baseCard_other.type == CardTypeStatus.DIAMOND || this._baseCard_other.type == CardTypeStatus.HEART) &&
-                    (this._baseCard_self.type == CardTypeStatus.CLUB || this._baseCard_self.type == CardTypeStatus.SPADE))) {
-                if (self.tag == other.tag - 1) {
-                    if (this.isInputOK && this._baseCard_other.isMoving == false && this._baseCard_self.isMoving == true) {
-                        console.log("ăn được");
-                        self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
-                        self.node.parent.getComponent(BaseCard).ClearCardMove();
-                        other.node.parent.parent.getComponent(Cell).Add(self.node.parent.getComponent(BaseCard));
+    }
+    onCollisionStay(other, self) {
+        if (other.node.parent.getComponent(BaseCard).tag_group != self.node.parent.getComponent(BaseCard).tag_group) {
+            this.GetCardInfo(other, self);
+            if (this._baseCard_other.tag_group != this._baseCard_self.tag_group) {
+                if (((this._baseCard_other.type == CardTypeStatus.CLUB || this._baseCard_other.type == CardTypeStatus.SPADE) &&
+                    (this._baseCard_self.type == CardTypeStatus.DIAMOND || this._baseCard_self.type == CardTypeStatus.HEART)) ||
+                    ((this._baseCard_other.type == CardTypeStatus.DIAMOND || this._baseCard_other.type == CardTypeStatus.HEART) &&
+                        (this._baseCard_self.type == CardTypeStatus.CLUB || this._baseCard_self.type == CardTypeStatus.SPADE))) {
+                    if (self.tag == other.tag - 1) {
+                        if (this.isInputOK && this._baseCard_other.isMoving == false && this._baseCard_self.isMoving == true && self.node.parent.getComponent(CardMove).Mouse_status == MOUSE_STATUS.MOUSE_UP) {
+                            console.log("ăn được");
+                            self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
+                            // self.node.parent.getComponent(BaseCard).ClearCardMove();
+                            other.node.parent.parent.getComponent(Cell).Add(self.node.parent.getComponent(BaseCard));
+                        }
                     }
                 }
             }
-        } else {
-            self.node.parent.getComponent(BaseCard).SetIsInputCell(false);
         }
-    }
-    onCollisionStay(other, self) {
     }
     onCollisionExit(other, self) {
     }

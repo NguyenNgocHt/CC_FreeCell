@@ -18,8 +18,6 @@ export default class LoadImages extends cc.Component {
     }
     public LoadingImages(path: string, nameImage: string, callback: (spriteFrame: cc.SpriteFrame) => void) {
         let fullPath = path + nameImage;
-        console.log("Name image " + nameImage);
-        console.log("FULL PATH " + fullPath);
         cc.loader.loadRes(fullPath, cc.Texture2D, (err, texture) => {
             if (err) {
                 console.error("Error loading sprite frame:", err);

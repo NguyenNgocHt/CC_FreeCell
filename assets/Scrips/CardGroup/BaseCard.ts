@@ -113,21 +113,16 @@ export class BaseCard extends cc.Component {
     private SetTagCollder() {
         let collider = this.colliderNode.getComponent(cc.BoxCollider);
         collider.tag = this.number_index;
-        console.log("number index" + this.number_index);
-        console.log('colliderTag', collider.tag);
     }
     public CheckLastElementOfArray(): boolean {
         if (this.isInit) {
             let nodeIndex = this.node.getSiblingIndex();
             if (nodeIndex == this.node.parent.children.length - 1) {
-                console.log(nodeIndex);
-                console.log("parent index", this.node.parent.children.length - 1)
                 return true;
             }
         } else {
-            return null;
+            return false;
         }
-
     }
     public GetIsMoving(): boolean {
         if (this.node.getComponent(CardMove)) {
@@ -138,8 +133,11 @@ export class BaseCard extends cc.Component {
         }
     }
     public SetIsInputCell(isInput: boolean) {
+        console.log("set is input cell", isInput);
         if (this.node.getComponent(CardMove)) {
+            console.log("set is input cell", isInput);
             this.node.getComponent(CardMove).isInputCell = isInput;
+            this.node.getComponent(CardMove).CardMovingOrigin();
         }
     }
 }

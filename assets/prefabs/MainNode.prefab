@@ -3279,7 +3279,7 @@
       "__id__": 88
     },
     "_enabled": true,
-    "Tag": "1",
+    "Tag": 1,
     "_id": ""
   },
   {
@@ -3520,7 +3520,7 @@
       "__id__": 96
     },
     "_enabled": true,
-    "Tag": "2",
+    "Tag": 2,
     "_id": ""
   },
   {
@@ -3750,7 +3750,7 @@
       "__id__": 103
     },
     "_enabled": true,
-    "Tag": "3",
+    "Tag": 3,
     "_id": ""
   },
   {
@@ -3980,7 +3980,7 @@
       "__id__": 110
     },
     "_enabled": true,
-    "Tag": "4",
+    "Tag": 4,
     "_id": ""
   },
   {
@@ -4210,7 +4210,7 @@
       "__id__": 117
     },
     "_enabled": true,
-    "Tag": "5",
+    "Tag": 5,
     "_id": ""
   },
   {
@@ -4440,7 +4440,7 @@
       "__id__": 124
     },
     "_enabled": true,
-    "Tag": "6",
+    "Tag": 6,
     "_id": ""
   },
   {
@@ -4670,7 +4670,7 @@
       "__id__": 131
     },
     "_enabled": true,
-    "Tag": "7",
+    "Tag": 7,
     "_id": ""
   },
   {
@@ -4900,7 +4900,7 @@
       "__id__": 138
     },
     "_enabled": true,
-    "Tag": "8",
+    "Tag": 8,
     "_id": ""
   },
   {
@@ -5069,9 +5069,7 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_spriteFrame": {
-      "__uuid__": "76966873-d630-43d0-bf46-65c62f3ab743"
-    },
+    "_spriteFrame": null,
     "_type": 0,
     "_sizeMode": 1,
     "_fillType": 0,
@@ -5094,6 +5092,7 @@
       "__id__": 144
     },
     "_enabled": true,
+    "Tag": 9,
     "_id": ""
   },
   {
@@ -6415,6 +6414,7 @@
       "__id__": 176
     },
     "_enabled": true,
+    "CardButton": null,
     "_id": ""
   },
   {

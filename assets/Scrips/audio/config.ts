@@ -10,4 +10,6 @@ export enum MOUSE_STATUS {
 export const GAME_LISTEN_TO_EVENTS = {
     DATA_FOR_CARD_INTERMEDIARY: "data-for-card-intermediary",
     DATA_INDEX_FOR_CARD: "data-index-for-card",
+    DATA_OUTPUT_CELL: "data-output-cell",
+    DATA_OUTPUT_CELL_MAIN: "data-output-cell-main",
 }
