@@ -59,17 +59,13 @@ export class BaseCard extends cc.Component {
         this.isInit = true;
         this.cell = cell.getComponent(Cell);
         this.tag_group = this.cell.Tag;
+        console.log("tag group", this.tag_group);
         this.id = id;
         if (this.node.getComponent(CardMove)) {
             let cardMove = this.node.getComponent(CardMove);
             cardMove.RegisterEvent();
             cardMove.isMoving = false;
         }
-        this.colliderNode = this.node.getChildByName("CardCollider");
-        if (!this.colliderNode.getComponent(CardColliders)) {
-            this.colliderNode.addComponent(CardColliders);
-        }
-        this.SetTagCollder();
     }
     public IsInOrderWithCard(card: BaseCard): boolean {
         return this.IsInColor(card) && this.IsInOrder(card, false);
@@ -91,17 +87,6 @@ export class BaseCard extends cc.Component {
         return smaller ? this.number_index == (card.number_index - 1) : this.number_index == (card.number_index + 1);
     }
     public OnClick_AddCardMove() {
-        // let CellNode = this.node.parent.getComponent(Cell);
-        // if (!this.node.getComponent(CardMove)) {
-        //     if (this.CheckLastElementOfArray) {
-        //         console.log("add card move")
-        //         this.node.addComponent(CardMove);
-        //         this.originIndex = this.node.parent.parent.getSiblingIndex();
-        //         this.node.parent.parent.setSiblingIndex(9);
-        //         // CellNode.SetPositionAllChild();
-        //         CellNode.CheckBaseCard(this.node.getSiblingIndex());
-        //     }
-        // }
     }
     public ClearCardMove() {
         if (this.node.getComponent(CardMove)) {
@@ -111,8 +96,11 @@ export class BaseCard extends cc.Component {
         }
     }
     private SetTagCollder() {
-        let collider = this.colliderNode.getComponent(cc.BoxCollider);
-        collider.tag = this.number_index;
+        let colliderNode = this.node.getChildByName("CardCollider");
+        if (colliderNode.getComponent(cc.BoxCollider)) {
+            let collider = colliderNode.getComponent(cc.BoxCollider);
+            collider.tag = this.number_index;
+        }
     }
     public CheckLastElementOfArray(): boolean {
         if (this.isInit) {
@@ -138,6 +126,19 @@ export class BaseCard extends cc.Component {
             console.log("set is input cell", isInput);
             this.node.getComponent(CardMove).isInputCell = isInput;
             this.node.getComponent(CardMove).CardMovingOrigin();
+        }
+    }
+    public AddCollider() {
+        let colliderNode = this.node.getChildByName("CardCollider");
+        if (!colliderNode.getComponent(CardColliders)) {
+            colliderNode.addComponent(CardColliders);
+        }
+        this.SetTagCollder();
+    }
+    public RemoveCollider() {
+        let colliderNode = this.node.getChildByName("CardCollider");
+        if (colliderNode.getComponent(CardColliders)) {
+            colliderNode.removeComponent(CardColliders);
         }
     }
 }

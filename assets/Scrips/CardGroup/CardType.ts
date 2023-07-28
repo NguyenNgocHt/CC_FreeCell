@@ -1,10 +1,10 @@
 
 const { ccclass, property } = cc._decorator;
 export enum CardTypeStatus {
-    SPADE,
-    CLUB,
-    DIAMOND,
-    HEART
+    SPADE = 0,
+    CLUB = 1,
+    DIAMOND = 2,
+    HEART = 3,
 };
 @ccclass
 export default class CardType extends cc.Component {

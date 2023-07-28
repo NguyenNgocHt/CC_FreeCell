@@ -23,10 +23,14 @@ export default class CardColliders extends cc.Component {
                         (this._baseCard_self.type == CardTypeStatus.CLUB || this._baseCard_self.type == CardTypeStatus.SPADE))) {
                     if (self.tag == other.tag - 1) {
                         if (this.isInputOK && this._baseCard_other.isMoving == false && this._baseCard_self.isMoving == true && self.node.parent.getComponent(CardMove).Mouse_status == MOUSE_STATUS.MOUSE_UP) {
-                            console.log("ăn được");
-                            self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
-                            // self.node.parent.getComponent(BaseCard).ClearCardMove();
-                            other.node.parent.parent.getComponent(Cell).Add(self.node.parent.getComponent(BaseCard));
+                            if (self.node.parent.getComponent(BaseCard).tag_group == 9 && other.node.parent.getComponent(BaseCard).tag_group != 9) {
+                                self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
+                                self.node.parent.parent.getComponent(Cell).SetOutputCell(other.node.parent.parent.getComponent(Cell).id)
+                            } else {
+                                self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
+                                self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
+                                other.node.parent.parent.getComponent(Cell).Add(self.node.parent.getComponent(BaseCard));
+                            }
                         }
                     }
                 }

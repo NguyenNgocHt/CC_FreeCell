@@ -15,6 +15,7 @@ import CheckRandomNumber from "../common/CheckRandomNumber";
 import { GameManager } from "./GameManager";
 import CardMove from "../CardGroup/CardMove";
 import { GAME_LISTEN_TO_EVENTS } from "../audio/config";
+import CellMove from "../cellGroup/CellMove";
 const { ccclass, property } = cc._decorator;
 export class CardLog {
     public card: BaseCard;
@@ -36,8 +37,8 @@ export default class Main extends cc.Component {
     Cells: Cell[] = [];
     @property(FreeCell)
     FreeCell: FreeCell[] = [];
-    @property(AceCell)
-    AceCell: AceCell[] = [];
+    @property(cc.Node)
+    AceCell: cc.Node[] = [];
     @property(cc.Node)
     Cell_intermediary: cc.Node = null;
     private logs: Stack<CardLog>;
@@ -69,19 +70,26 @@ export default class Main extends cc.Component {
     public EventRegister() {
         for (let i = 0; i < this.Cells.length; i++) {
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY, this.GetDataForCardsEntermediary, this);
+            this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
+            this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.CheckAceCell_inputCards, this);
         }
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
+        this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
     }
     protected onDisable(): void {
         for (let i = 0; i < this.Cells.length; i++) {
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY);
+            this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
+            this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT);
         }
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN);
+        this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
     }
     StartGame() {
         console.log("new game");
         this.InitCellID();
         if (this.newGame || !this.LoadGame()) {
+            this.InitTypeAceCell();
             this.InitCards();
             this.Shuffle();
             this.DealCard();
@@ -98,8 +106,15 @@ export default class Main extends cc.Component {
             this.FreeCell[i].id = i + 8; // ID freeCell từ 8 đến 11
         }
         for (let i = 0; i < this.AceCell.length; i++) {
-            this.AceCell[i].id = i + 12;// ID aceCells từ 12 đến 15;
+            this.AceCell[i].getComponent(AceCell).id = i + 12;// ID aceCells từ 12 đến 15;
         }
+    }
+    public InitTypeAceCell() {
+        console.log(this.AceCell);
+        for (let i = 0; i < this.AceCell.length; i++) {
+            this.AceCell[i].getComponent(AceCell).InitAceCell(i);
+        }
+        console.log(this.AceCell);
     }
     public MaxMovableCard(): number {
         let f = 0;
@@ -135,7 +150,7 @@ export default class Main extends cc.Component {
         }
         for (let i = 0; i < this.AceCell.length; i++) // ACell
         {
-            for (let j = 0; j < this.AceCell[i].Length(); j++) {
+            for (let j = 0; j < this.AceCell[i].getComponent(AceCell).Length(); j++) {
                 save.AddCardInfor_Arr(this.AceCell[i][j].GetCardInfo());
             }
         }
@@ -173,7 +188,7 @@ export default class Main extends cc.Component {
             return this.FreeCell[i - 8];
         }
         else {
-            return this.AceCell[i - 12];
+            return this.AceCell[i - 12].getComponent(AceCell);
         }
     }
     public InitCards()//khoi tao 52 lá bài tương ứng với id mỗi lá từ 1 - 52, sau đó add vào list<BaseCard>
@@ -227,6 +242,7 @@ export default class Main extends cc.Component {
     public AnimateDeal(i: number)// hoạt động phát bài
     {
         if (i >= this.cards.length) {
+            this.SetCardsCollider();
             // GameManager.Instance.CloseLoading();
             return;
         }
@@ -263,6 +279,8 @@ export default class Main extends cc.Component {
         let localPositionCard_entermediary = this.Cell_intermediary.parent.convertToNodeSpaceAR(worldPositionCard);
         this.Cell_intermediary.setPosition(localPositionCard_entermediary.x, localPositionCard_entermediary.y + 55);
         this.Cell_intermediary.setSiblingIndex(10);
+        this.Cell_intermediary.getComponent(Cell).Cards_intermediaryInput = [];
+        this.Cell_intermediary.getComponent(Cell).Set_positionCell_intermediary(this.Cell_intermediary.position);
         for (let i = 0; i < this.cards_entermediary.length; i++) {
             this.Cell_intermediary.getComponent(Cell).Add_cardEntermediary(this.cards_entermediary[i], this.ID_cell_old);
         }
@@ -282,6 +300,38 @@ export default class Main extends cc.Component {
             this.Cells[this.ID_cell_old].SetPositionAllChildsAndOffActive();
         }
         console.log("cell old", this.Cells[this.ID_cell_old].node.children);
+    }
+    SetCardsCollider() {
+        for (let i = 0; i < this.Cells.length; i++) {
+            this.Cells[i].AddColliderCards_gameStart();
+        }
+    }
+    CheckAceCell_inputCards(idCellBottom: number, indexCard: number) {
+        let childs = this.Cells[idCellBottom].node.children;
+        let baseCard = childs[indexCard].getComponent(BaseCard);
+        console.log('no day roi', baseCard);
+        for (let i = 0; this.AceCell.length; i++) {
+            console.log(this.AceCell[i].getComponent(AceCell).Tag);
+            if (this.AceCell[i].getComponent(AceCell).CardTypeGroup) {
+                if (baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup) {
+                    if (!this.AceCell[i].getComponent(AceCell).cards_aceCell && baseCard.number_index == 1) {
+                        let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
+                        let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
+                        cc.tween(baseCard.node)
+                            .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
+                            .call(() => {
+                                this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
+                                this.Cells[idCellBottom].ResetCardsIndex();
+                            })
+                            .start();
+                    }
+                    else {
+
+                    }
+                }
+            }
+
+        }
     }
 }
 
