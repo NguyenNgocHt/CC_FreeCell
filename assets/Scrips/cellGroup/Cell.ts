@@ -17,15 +17,18 @@ export default class Cell extends cc.Component {
     private cards_inputCardEnterCellOld: BaseCard[];
     private cards_temporary: BaseCard[];
     private cards_index: number[];
+    public cards_freeCell: BaseCard[];
+    public cards_aceCell: BaseCard[];
     private successInit_index: number;
     public id_cell_old: number;
     public posCell_intermediry: cc.Vec3 = new cc.Vec3(0, 0, 0);
     public id: number;
     private countCheckIndexMax: number = 0;
-    private coutPushIndexCard: number = 0;
+    private countPushIndexCard: number = 0;
     private IndexCard_onclick: number = 0;
     start() {
         this.successInit_index = 0;
+        this.cards_freeCell = [];
     }
     protected onDisable(): void {
         let childs = this.node.children;
@@ -183,7 +186,7 @@ export default class Cell extends cc.Component {
         }
     }
     public CheckBaseCard(cardIndex: number): boolean {
-        console.log("cards trước khi tách cell", this.cards);
+        // console.log("cards trước khi tách cell", this.cards_freeCell);
         if (this.successInit_index != cardIndex) {
             this.carts_intermediaryOutput = [];
             let childs = this.node.children;
@@ -219,12 +222,6 @@ export default class Cell extends cc.Component {
             }
         }
     }
-    Emit_data_toMain() {
-        console.log("cards full", this.cards);
-        console.log("cards intermediary", this.carts_intermediaryOutput);
-        this.RemoveCardInCards();
-        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY, this.carts_intermediaryOutput, this.id);
-    }
     RemoveCardInCards() {
         console.log("cards intermediary", this.carts_intermediaryOutput);
         this.cards_temporary = [];
@@ -245,13 +242,20 @@ export default class Cell extends cc.Component {
         if (!this.cards_index) {
             this.cards_index = [];
         }
+        console.log("coutPushIndexCard", this.countPushIndexCard);
         this.cards_index.push(index);
-        this.coutPushIndexCard += 1;
-        if (this.coutPushIndexCard == 1) {
+        this.countPushIndexCard += 1;
+        if (this.countPushIndexCard == 1) {
             this.IndexCard_onclick = index;
             this.CheckIndexMax(mouse_onclickStatus);
             this.Emit_onClickToMain();
         }
+        cc.tween(this.node)
+            .delay(0.02)
+            .call(() => {
+                this.countPushIndexCard = 0;
+            })
+            .start();
     }
     CheckIndexMax(mouse_onclickStatus: MOUSE_ONCLICK_LEFT_RIGHT_STATUS) {
         if (mouse_onclickStatus == MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_LEFT) {
@@ -260,10 +264,6 @@ export default class Cell extends cc.Component {
         else if (mouse_onclickStatus == MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT) {
             this.SetMovingCardToCellTop(this.IndexCard_onclick);
         }
-    }
-    //gui du lieu cell va id card cho main de check xem cell top co chua duoc card bottom cell khong
-    SetMovingCardToCellTop(indexMax: number) {
-        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.id, indexMax);
     }
     //check index card de lay ra card nao duoc phep di chyuyen
     SetIsMovingCard(indexMax: number) {
@@ -274,32 +274,32 @@ export default class Cell extends cc.Component {
                     // console.log(childs[i].getComponent(BaseCard));
                     childs[i].getComponent(CardMove).isMoving = true;
                     this.node.parent.setSiblingIndex(9);
+                    this.ResetCardsIndex();
                 } else {
                     if (this.CheckBaseCard(i)) {
-
+                        this.ResetCardsIndex();
                     } else {
                         childs[i].getComponent(CardMove).isMoving = false;
+                        this.ResetCardsIndex();
                     }
                 }
             } else {
                 // console.log(childs[i].getComponent(BaseCard));
                 childs[i].getComponent(CardMove).isMoving = false;
+                this.ResetCardsIndex();
             }
         }
-        this.ResetCardsIndex();
     }
     public ResetCardsIndex() {
         cc.tween(this.node)
             .delay(0.005)
             .call(() => {
-                this.coutPushIndexCard = 0;
+                this.countPushIndexCard = 0;
+                console.log("number reset count index card", this.countPushIndexCard);
             })
             .start();
     }
-    public SetOutputCell(id_cell_input: number) {
-        console.log("hay nha card ra khoi cell tra ve cell goc");
-        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, id_cell_input);
-    }
+
     //add collider tai thoi diem khoi tao card , chi add cac doi tuong cuoi mang
     public AddColliderCards_gameStart() {
         let childs = this.node.children;
@@ -328,10 +328,40 @@ export default class Cell extends cc.Component {
             }
         }
     }
-    Emit_onClickToMain() {
-        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
-    }
     Set_positionCell_intermediary(posStart: cc.Vec3) {
         this.posCell_intermediry = posStart;
+    }
+    public RemoveCards_freecell() {
+        this.cards_freeCell = [];
+    }
+    //emit to main
+    Emit_data_toMain() {
+        this.RemoveCardInCards();
+        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY, this.carts_intermediaryOutput, this.id);
+    }
+    //gui du lieu cell va id card cho main de check xem cell top co chua duoc card bottom cell khong
+    SetMovingCardToCellTop(indexMax: number) {
+        let childs = this.node.children;
+        if (indexMax == childs.length - 1) {
+            this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.id, indexMax);
+        } else {
+            this.ResetCardsIndex();
+        }
+    }
+    public SetOutputCell(id_cell_input: number) {
+        console.log("hay nha card ra khoi cell tra ve cell goc");
+        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, id_cell_input);
+    }
+    private Emit_onClickToMain() {
+        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
+    }
+    public EmitToMain_removeCardFreecell(tagCell: number) {
+        console.log("tag number", tagCell);
+        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_REMOVE_CARD_FREECELL, tagCell);
+    }
+    //check xem cell rong chua
+    public EmitCheckChildsInCell(tagCell: number) {
+        console.log("tag number", tagCell);
+        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL, tagCell);
     }
 }

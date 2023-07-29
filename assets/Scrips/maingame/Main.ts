@@ -6,7 +6,7 @@
 //  - https://docs.cocos.com/creator/2.4/manual/en/scripting/life-cycle-callbacks.html
 import Cell from "../cellGroup/Cell";
 import FreeCell from "../cellGroup/FreeCell";
-import { AceCell } from "../cellGroup/AceCell";
+import AceCell from "../cellGroup/AceCell";
 import { BaseCard } from "../CardGroup/BaseCard";
 import { GameSave, SaveData } from "../gameData/SaveData";
 import GameData from "../gameData/GameData";
@@ -48,6 +48,8 @@ export default class Main extends cc.Component {
     private cards: BaseCard[];
     private cards_entermediary: BaseCard[];
     private ID_cell_old: number = 0;
+    private CounMovingAcecell: number = 0;
+    private isMovingFreecell: boolean;
     // LIFE-CYCLE CALLBACKS:
     //singleTon
     private static instance: Main | null = null;
@@ -72,6 +74,8 @@ export default class Main extends cc.Component {
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY, this.GetDataForCardsEntermediary, this);
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.CheckAceCell_inputCards, this);
+            this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_REMOVE_CARD_FREECELL, this.RemoveCardFreeCell, this);
+            this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL, this.CheckChildsIncell, this);
         }
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
@@ -81,6 +85,8 @@ export default class Main extends cc.Component {
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_FOR_CARD_INTERMEDIARY);
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT);
+            this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_REMOVE_CARD_FREECELL);
+            this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL);
         }
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN);
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
@@ -310,27 +316,90 @@ export default class Main extends cc.Component {
         let childs = this.Cells[idCellBottom].node.children;
         let baseCard = childs[indexCard].getComponent(BaseCard);
         console.log('no day roi', baseCard);
-        for (let i = 0; this.AceCell.length; i++) {
-            console.log(this.AceCell[i].getComponent(AceCell).Tag);
-            if (this.AceCell[i].getComponent(AceCell).CardTypeGroup) {
-                if (baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup) {
-                    if (!this.AceCell[i].getComponent(AceCell).cards_aceCell && baseCard.number_index == 1) {
-                        let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
-                        let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
-                        cc.tween(baseCard.node)
-                            .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
-                            .call(() => {
-                                this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
-                                this.Cells[idCellBottom].ResetCardsIndex();
-                            })
-                            .start();
-                    }
-                    else {
+        this.InitTypeAceCell();
+        for (let i = 0; i < this.AceCell.length; i++) {
+            console.log("nhay vao day", this.AceCell[i].getComponent(AceCell));
+            if (!this.AceCell[i].getComponent(AceCell).cards_aceCell &&
+                baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
+                baseCard.number_index == 1) {
+                console.log("add at vao mang rong");
+                this.CounMovingAcecell++;
+                console.log("CounMovingAcecell", this.CounMovingAcecell)
+                let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
+                let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
+                cc.tween(baseCard.node)
+                    .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
+                    .call(() => {
+                        this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
+                        this.Cells[idCellBottom].ResetCardsIndex();
+                        this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
+                    })
+                    .start();
+            }
+            else if (this.AceCell[i].getComponent(AceCell).cards_aceCell &&
+                baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
+                this.AceCell[i].getComponent(AceCell).GetBaseCardForEndOfArr().number_index == baseCard.number_index - 1) {
+                console.log("add bai liên tiếp vào mang true");
+                this.CounMovingAcecell++;
+                let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
+                let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
+                cc.tween(baseCard.node)
+                    .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
+                    .call(() => {
+                        this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
+                        this.Cells[idCellBottom].ResetCardsIndex();
+                        this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
+                        console.log("add được");
+                    })
+                    .start();
+            }
+        }
+        if (this.CounMovingAcecell == 0) {
+            console.log("add free cell");
+            this.CardMoveToInputFreeCell(baseCard, idCellBottom);
+        } else {
+            this.CounMovingAcecell = 0;
+        }
+    }
+    CardMoveToInputFreeCell(baseCard: BaseCard, IDCellBottom: number) {
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            console.log("free cell", this.FreeCell[i]);
+            if (this.FreeCell[i].cards_freeCell.length == 0) {
+                let worldPosFreeCell = this.FreeCell[i].node.parent.convertToWorldSpaceAR(this.FreeCell[i].node.position);
+                let converToLocalCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosFreeCell);
+                cc.tween(baseCard.node)
+                    .to(0.1, { position: new cc.Vec3(converToLocalCard) })
+                    .call(() => {
+                        this.FreeCell[i].Add_freeCell(baseCard);
+                        this.Cells[IDCellBottom].ResetCardsIndex();
+                        this.Cells[IDCellBottom].EmitCheckChildsInCell(IDCellBottom);
 
-                    }
+                    })
+                    .start();
+                break;
+            } else {
+                this.Cells[IDCellBottom].ResetCardsIndex();
+                this.Cells[IDCellBottom].EmitCheckChildsInCell(IDCellBottom);
+            }
+        }
+    }
+    RemoveCardFreeCell(tagCell: number) {
+        console.log("giet thang nay", tagCell);
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            if (this.FreeCell[i].Tag == tagCell) {
+                this.FreeCell[i].RemoveCards_freecell();
+                if (this.FreeCell[i].cards_freeCell.length == 0) {
+                    console.log(this.FreeCell[i].cards_freeCell);
                 }
             }
-
+        }
+    }
+    CheckChildsIncell(tagCell: number) {
+        console.log("kiem tra thang nay");
+        for (let i = 0; i < this.Cells.length; i++) {
+            if (this.Cells[i].cards.length == 0) {
+                console.log("ep cho thằng này một cái collider vào mồm");
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ import { BaseCard } from "./BaseCard";
 import { GAME_LISTEN_TO_EVENTS, MOUSE_ONCLICK_LEFT_RIGHT_STATUS, MOUSE_STATUS } from "../audio/config";
 import Cell from "../cellGroup/Cell";
 import { GameSave } from "../gameData/SaveData";
+import FreeCell from "../cellGroup/FreeCell";
 //card moving
 const { ccclass, property } = cc._decorator;
 @ccclass
@@ -19,6 +20,8 @@ export default class CardMove extends cc.Component {
     private mousePos: cc.Vec2 = cc.v2(0, 0);
     private isLeaving: boolean = false;
     private offset: cc.Vec2 = cc.v2(0, 0);
+    private indexOld_parent: number;
+    private indexOld_parent_parent_parent: number;
     protected onLoad(): void {
     }
     start() {
@@ -38,6 +41,10 @@ export default class CardMove extends cc.Component {
     }
     private onCardTouchStart(event: cc.Event.EventMouse) {
         if (event.getButton() === cc.Event.EventMouse.BUTTON_LEFT) {
+
+            console.log("card info", this.node.getComponent(BaseCard));
+            this.getOldIndex();
+            this.OpenSetNewSblIndexCell();
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_LEFT;
             this.originPosition = this.node.position;
             console.log("emit to cell");
@@ -54,8 +61,8 @@ export default class CardMove extends cc.Component {
                 .start();
         } else if (event.getButton() === cc.Event.EventMouse.BUTTON_RIGHT) {
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT;
-            this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus);
             console.log("onClick chuột phải");
+            this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus);
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.NO_STATUS;
         }
     }
@@ -104,6 +111,7 @@ export default class CardMove extends cc.Component {
                     .to(0.1, { position: new cc.Vec3(this.originPosition) })
                     .call(() => {
                         this.isMoving = false;
+                        this.SetOilIndexNode();
                     })
                     .start();
             }
@@ -111,6 +119,7 @@ export default class CardMove extends cc.Component {
         } else {
             this.isMoving = false;
             this.isInputCell = false;
+            this.SetOilIndexNode();
         }
     }
     private EmitOutputCell() {
@@ -124,6 +133,33 @@ export default class CardMove extends cc.Component {
     }
     onMouseLeave(event: cc.Event.EventMouse) {
         this.isLeaving = true;
+    }
+    OpenSetNewSblIndexCell() {
+        if (this.node.getComponent(BaseCard).tag_group == 10 ||
+            this.node.getComponent(BaseCard).tag_group == 11 ||
+            this.node.getComponent(BaseCard).tag_group == 12 ||
+            this.node.getComponent(BaseCard).tag_group == 13) {
+            this.node.parent.setSiblingIndex(3);
+            this.node.parent.parent.parent.setSiblingIndex(5);
+        }
+    }
+    getOldIndex() {
+        if (this.node.getComponent(BaseCard).tag_group == 10 ||
+            this.node.getComponent(BaseCard).tag_group == 11 ||
+            this.node.getComponent(BaseCard).tag_group == 12 ||
+            this.node.getComponent(BaseCard).tag_group == 13) {
+            this.indexOld_parent = this.node.parent.getSiblingIndex();
+            this.indexOld_parent_parent_parent = this.node.parent.parent.parent.getSiblingIndex();
+        }
+    }
+    SetOilIndexNode() {
+        if (this.node.getComponent(BaseCard).tag_group == 10 ||
+            this.node.getComponent(BaseCard).tag_group == 11 ||
+            this.node.getComponent(BaseCard).tag_group == 12 ||
+            this.node.getComponent(BaseCard).tag_group == 13) {
+            this.node.parent.setSiblingIndex(this.indexOld_parent);
+            this.node.parent.parent.parent.setSiblingIndex(this.indexOld_parent_parent_parent);
+        }
     }
     protected update(dt: number): void {
         // if (this.isLeaving && this.isMoving) {

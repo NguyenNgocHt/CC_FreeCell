@@ -1,5 +1,6 @@
 import { MOUSE_STATUS } from "../audio/config";
 import Cell from "../cellGroup/Cell";
+import FreeCell from "../cellGroup/FreeCell";
 import { BaseCard } from "./BaseCard";
 import CardMove from "./CardMove";
 import { CardTypeStatus } from "./CardType";
@@ -10,6 +11,7 @@ const { ccclass, property } = cc._decorator;
 export default class CardColliders extends cc.Component {
     private _baseCard_other: BaseCard = new BaseCard();
     private _baseCard_self: BaseCard = new BaseCard();
+    private self_cards_freecell: BaseCard[];
     private isInputOK: boolean = false;
     onCollisionEnter(other, self) {
     }
@@ -22,14 +24,32 @@ export default class CardColliders extends cc.Component {
                     ((this._baseCard_other.type == CardTypeStatus.DIAMOND || this._baseCard_other.type == CardTypeStatus.HEART) &&
                         (this._baseCard_self.type == CardTypeStatus.CLUB || this._baseCard_self.type == CardTypeStatus.SPADE))) {
                     if (self.tag == other.tag - 1) {
-                        if (this.isInputOK && this._baseCard_other.isMoving == false && this._baseCard_self.isMoving == true && self.node.parent.getComponent(CardMove).Mouse_status == MOUSE_STATUS.MOUSE_UP) {
-                            if (self.node.parent.getComponent(BaseCard).tag_group == 9 && other.node.parent.getComponent(BaseCard).tag_group != 9) {
-                                self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
-                                self.node.parent.parent.getComponent(Cell).SetOutputCell(other.node.parent.parent.getComponent(Cell).id)
-                            } else {
-                                self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
-                                self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
-                                other.node.parent.parent.getComponent(Cell).Add(self.node.parent.getComponent(BaseCard));
+                        if (this.isInputOK && this._baseCard_other.isMoving == false && this._baseCard_self.isMoving == true
+                            && self.node.parent.getComponent(CardMove).Mouse_status == MOUSE_STATUS.MOUSE_UP) {
+                            if (this._baseCard_other.tag_group != 10 && this._baseCard_other.tag_group != 11
+                                && this._baseCard_other.tag_group != 12 && this._baseCard_other.tag_group != 13
+                                && this._baseCard_other.tag_group != 14 && this._baseCard_other.tag_group != 15
+                                && this._baseCard_other.tag_group != 16 && this._baseCard_other.tag_group != 17) {
+                                if (this._baseCard_self.tag_group == 9 && this._baseCard_other.tag_group != 9) {
+                                    self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
+                                    self.node.parent.parent.getComponent(Cell).SetOutputCell(other.node.parent.parent.getComponent(Cell).id)
+                                    this.node.parent.parent.getComponent(Cell).EmitCheckChildsInCell(this._baseCard_self.tag_group);
+                                }
+                                else if (this._baseCard_self.tag_group == 10 || this._baseCard_self.tag_group == 11 ||
+                                    this._baseCard_self.tag_group == 12 || this._baseCard_self.tag_group == 13) {
+                                    console.log('this._baseCard_self.tag_group', this._baseCard_self.tag_group);
+                                    console.log("this.node", this.node.parent.getComponent(BaseCard));
+                                    self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
+                                    self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
+                                    other.node.parent.parent.getComponent(Cell).Add(self.node.parent.getComponent(BaseCard));
+                                    this.node.parent.parent.getComponent(Cell).EmitToMain_removeCardFreecell(this._baseCard_self.tag_group);
+                                }
+                                else {
+                                    self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
+                                    self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
+                                    other.node.parent.parent.getComponent(Cell).Add(self.node.parent.getComponent(BaseCard));
+                                    this.node.parent.parent.getComponent(Cell).EmitCheckChildsInCell(this._baseCard_self.tag_group);
+                                }
                             }
                         }
                     }

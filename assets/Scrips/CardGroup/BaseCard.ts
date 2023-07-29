@@ -10,6 +10,7 @@ import Helper from "./Helper";
 import { PATH_TO_CARDS } from "../audio/config";
 import CardMove from "./CardMove";
 import CardColliders from "./CardColliders";
+import FreeCell from "../cellGroup/FreeCell";
 const { ccclass, property } = cc._decorator;
 @ccclass
 export class BaseCard extends cc.Component {
@@ -22,6 +23,7 @@ export class BaseCard extends cc.Component {
     public imgSelect: cc.Node = null;
     private mainGame: Main;
     private cell: Cell;
+    private freeCell: FreeCell;
     public id: number;
     private imagesPath: PATH_TO_CARDS;
     private width: number = 85;

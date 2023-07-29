@@ -1,19 +1,14 @@
-// Learn TypeScript:
-//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/typescript.html
-// Learn Attribute:
-//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/reference/attributes.html
-// Learn life-cycle callbacks:
-//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/life-cycle-callbacks.html
 
 import { CardTypeStatus } from "../CardGroup/CardType";
 import { BaseCard } from "../CardGroup/BaseCard";
 import Cell from "./Cell";
+import CardMove from "../CardGroup/CardMove";
+import CardColliders from "../CardGroup/CardColliders";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export class AceCell extends Cell {
-    public cards_aceCell: BaseCard[];
+export default class AceCell extends Cell {
     public CardTypeGroup: number = 0;
     public Add_aceCell(card: BaseCard) {
         if (!this.cards_aceCell) {
@@ -33,9 +28,15 @@ export class AceCell extends Cell {
         let childs = this.node.children;
         for (let i = 0; i < childs.length; i++) {
             childs[i].setPosition(0, 0);
+            childs[i].removeComponent(CardMove);
+            childs[i].removeComponent(CardColliders);
         }
     }
     InitAceCell(cardType: number) {
         this.CardTypeGroup = cardType;
+    }
+    GetBaseCardForEndOfArr(): BaseCard {
+        let lengthCards = this.cards_aceCell.length;
+        return this.cards_aceCell[lengthCards - 1];
     }
 }

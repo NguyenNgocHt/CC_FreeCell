@@ -14,6 +14,8 @@ export const GAME_LISTEN_TO_EVENTS = {
     DATA_OUTPUT_CELL_MAIN: "data-output-cell-main",
     DATA_ONCLICK_CARD: "data-on-click-card",
     DATA_ONCLICK_BUTTON_RIGHT: "data-onclick-button-right",
+    DATA_REMOVE_CARD_FREECELL: "data-remove-card-free-cell",
+    DATA_CHECK_CHILDS_FOR_CELL: "data-check-childs-for-cell",
 }
 export enum MOUSE_ONCLICK_LEFT_RIGHT_STATUS {
     NO_STATUS = 0,
