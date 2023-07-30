@@ -4,6 +4,7 @@ import CardMove from "../CardGroup/CardMove";
 import { CardTypeStatus } from "../CardGroup/CardType";
 import { GAME_LISTEN_TO_EVENTS, MOUSE_ONCLICK_LEFT_RIGHT_STATUS } from "../audio/config";
 import Main from "../maingame/Main";
+import singleTon from "../maingame/Sigleton";
 import CellMove from "./CellMove";
 const { ccclass, property } = cc._decorator;
 
@@ -29,6 +30,7 @@ export default class Cell extends cc.Component {
     start() {
         this.successInit_index = 0;
         this.cards_freeCell = [];
+        this.cards = [];
     }
     protected onDisable(): void {
         let childs = this.node.children;
@@ -87,6 +89,7 @@ export default class Cell extends cc.Component {
         this.SetPositionAllChild_InputCardsEnterCellOld();
     }
     SetPositionAllChild() {
+        console.log("set posiiton all chidls");
         let childs = this.node.children;
         for (let i = 0; i < childs.length; i++) {
             childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = false;
@@ -186,63 +189,58 @@ export default class Cell extends cc.Component {
         }
     }
     public CheckBaseCard(cardIndex: number): boolean {
-        // console.log("cards trước khi tách cell", this.cards_freeCell);
-        if (this.successInit_index != cardIndex) {
-            this.carts_intermediaryOutput = [];
-            let childs = this.node.children;
-            let standardNumber = childs.length - cardIndex;
-            let actualNumber = 0;
-            for (let i = 0; i < childs.length; i++) {
-                if (childs[i].getSiblingIndex() >= cardIndex) {
-                    if (i + 1 < childs.length) {
-                        if (childs[i].getComponent(BaseCard).number_index == childs[i + 1].getComponent(BaseCard).number_index + 1) {
-                            if (((childs[i].getComponent(BaseCard).type == CardTypeStatus.CLUB || childs[i].getComponent(BaseCard).type == CardTypeStatus.SPADE) &&
-                                (childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.HEART || childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.DIAMOND)) ||
-                                ((childs[i].getComponent(BaseCard).type == CardTypeStatus.DIAMOND || childs[i].getComponent(BaseCard).type == CardTypeStatus.HEART) &&
-                                    (childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.CLUB || childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.SPADE))) {
-                                actualNumber += 1;
-                                this.carts_intermediaryOutput.push(childs[i].getComponent(BaseCard));
-                            }
+        console.log("cards trước khi tách cell", this.cards);
+        console.log('successInit_index != cardIndex');
+        this.carts_intermediaryOutput = [];
+        let childs = this.node.children;
+        let standardNumber = childs.length - cardIndex;
+        let actualNumber = 0;
+        for (let i = 0; i < childs.length; i++) {
+            if (childs[i].getSiblingIndex() >= cardIndex) {
+                console.log("childs[i].getSiblingIndex() >= cardIndex");
+                if (i + 1 < childs.length) {
+                    if (childs[i].getComponent(BaseCard).number_index == childs[i + 1].getComponent(BaseCard).number_index + 1) {
+                        if (((childs[i].getComponent(BaseCard).type == CardTypeStatus.CLUB || childs[i].getComponent(BaseCard).type == CardTypeStatus.SPADE) &&
+                            (childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.HEART || childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.DIAMOND)) ||
+                            ((childs[i].getComponent(BaseCard).type == CardTypeStatus.DIAMOND || childs[i].getComponent(BaseCard).type == CardTypeStatus.HEART) &&
+                                (childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.CLUB || childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.SPADE))) {
+                            actualNumber += 1;
+                            this.carts_intermediaryOutput.push(childs[i].getComponent(BaseCard));
                         }
                     }
-                    else if (i == childs.length - 1 && actualNumber == standardNumber - 1) {
-                        this.carts_intermediaryOutput.push(childs[i].getComponent(BaseCard));
-                        console.log("carts_intermediary" + this.carts_intermediaryOutput);
-                        console.log("có thể chuyển");
-                        if (this.carts_intermediaryOutput.length > 1) {
-                            this.Emit_data_toMain();
-                            return true;
-                        }
+                }
+                else if (i == childs.length - 1 && actualNumber == standardNumber - 1) {
+                    this.carts_intermediaryOutput.push(childs[i].getComponent(BaseCard));
+                    console.log("carts_intermediary" + this.carts_intermediaryOutput);
+                    console.log("có thể chuyển");
+                    if (this.carts_intermediaryOutput.length >= 1) {
+                        this.Emit_data_toMain();
+                        return true;
                     }
-                    else {
-                        console.log("không thể chuyển");
-                        return false;
-                    }
+                }
+                else {
+                    console.log("không thể chuyển");
+                    return false;
                 }
             }
         }
     }
     RemoveCardInCards() {
-        console.log("cards intermediary", this.carts_intermediaryOutput);
         this.cards_temporary = [];
         for (let i = 0; i < this.cards.length; i++) {
             if (!this.carts_intermediaryOutput.includes(this.cards[i])) {
                 this.cards_temporary.push(this.cards[i]);
             }
         }
-        console.log("new cards ", this.cards_temporary);
         this.cards = [];
-        console.log('card rong', this.cards);
         for (let i = 0; i < this.cards_temporary.length; i++) {
             this.cards.push(this.cards_temporary[i]);
         }
     }
     public GetCardIndex(index: number, mouse_onclickStatus: MOUSE_ONCLICK_LEFT_RIGHT_STATUS) {
-        console.log("Index", index);
         if (!this.cards_index) {
             this.cards_index = [];
         }
-        console.log("coutPushIndexCard", this.countPushIndexCard);
         this.cards_index.push(index);
         this.countPushIndexCard += 1;
         if (this.countPushIndexCard == 1) {
@@ -295,7 +293,6 @@ export default class Cell extends cc.Component {
             .delay(0.005)
             .call(() => {
                 this.countPushIndexCard = 0;
-                console.log("number reset count index card", this.countPushIndexCard);
             })
             .start();
     }
@@ -334,6 +331,10 @@ export default class Cell extends cc.Component {
     public RemoveCards_freecell() {
         this.cards_freeCell = [];
     }
+    public RemoveCards_cell() {
+        this.cards = [];
+    }
+
     //emit to main
     Emit_data_toMain() {
         this.RemoveCardInCards();
@@ -349,19 +350,21 @@ export default class Cell extends cc.Component {
         }
     }
     public SetOutputCell(id_cell_input: number) {
-        console.log("hay nha card ra khoi cell tra ve cell goc");
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, id_cell_input);
     }
     private Emit_onClickToMain() {
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
     }
     public EmitToMain_removeCardFreecell(tagCell: number) {
-        console.log("tag number", tagCell);
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_REMOVE_CARD_FREECELL, tagCell);
     }
     //check xem cell rong chua
     public EmitCheckChildsInCell(tagCell: number) {
-        console.log("tag number", tagCell);
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL, tagCell);
+    }
+    //xoa collider tam cua cell
+    public EmitDeleteColliderInCell(TagCell: number) {
+        console.log("emit delete collider Node in cell rong");
+        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE, TagCell);
     }
 }

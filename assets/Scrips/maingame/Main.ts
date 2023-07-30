@@ -16,6 +16,9 @@ import { GameManager } from "./GameManager";
 import CardMove from "../CardGroup/CardMove";
 import { GAME_LISTEN_TO_EVENTS } from "../audio/config";
 import CellMove from "../cellGroup/CellMove";
+import CardColliders from "../CardGroup/CardColliders";
+import singleTon from "./Sigleton";
+import TopGroupManager from "../topGroup/TopGroupManager";
 const { ccclass, property } = cc._decorator;
 export class CardLog {
     public card: BaseCard;
@@ -27,6 +30,8 @@ export class CardLog {
 }
 @ccclass
 export default class Main extends cc.Component {
+    @property(cc.Node)
+    TopManager: cc.Node = null;
     @property(cc.Node)
     Temptransform: cc.Node = null;
     @property(cc.Prefab)
@@ -50,6 +55,7 @@ export default class Main extends cc.Component {
     private ID_cell_old: number = 0;
     private CounMovingAcecell: number = 0;
     private isMovingFreecell: boolean;
+    private singleTon: singleTon = null;
     // LIFE-CYCLE CALLBACKS:
     //singleTon
     private static instance: Main | null = null;
@@ -60,7 +66,8 @@ export default class Main extends cc.Component {
         return this.instance;
     }
     // onLoad () {}
-
+    protected onLoad(): void {
+    }
     start() {
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
@@ -76,6 +83,7 @@ export default class Main extends cc.Component {
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.CheckAceCell_inputCards, this);
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_REMOVE_CARD_FREECELL, this.RemoveCardFreeCell, this);
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL, this.CheckChildsIncell, this);
+            this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE, this.DeleteColliderNodeInCell, this);
         }
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
@@ -87,6 +95,7 @@ export default class Main extends cc.Component {
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT);
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_REMOVE_CARD_FREECELL);
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL);
+            this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE);
         }
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN);
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
@@ -249,6 +258,7 @@ export default class Main extends cc.Component {
     {
         if (i >= this.cards.length) {
             this.SetCardsCollider();
+            this.TopManager.getComponent(TopGroupManager).SettimerStart(true);
             // GameManager.Instance.CloseLoading();
             return;
         }
@@ -268,7 +278,7 @@ export default class Main extends cc.Component {
             })
             .start();
     }
-    GetDataForCardsEntermediary(base_card: BaseCard[], ID_cell: number) {
+    public GetDataForCardsEntermediary(base_card: BaseCard[], ID_cell: number) {
         this.ID_cell_old = ID_cell;
         console.log("id cell old", this.ID_cell_old);
         this.cards_entermediary = [];
@@ -280,7 +290,7 @@ export default class Main extends cc.Component {
             this.SetDataToCardIntermediary();
         }
     }
-    SetDataToCardIntermediary() {
+    public SetDataToCardIntermediary() {
         let worldPositionCard = this.cards_entermediary[0].node.parent.convertToWorldSpaceAR(this.cards_entermediary[0].node.position);
         let localPositionCard_entermediary = this.Cell_intermediary.parent.convertToNodeSpaceAR(worldPositionCard);
         this.Cell_intermediary.setPosition(localPositionCard_entermediary.x, localPositionCard_entermediary.y + 55);
@@ -291,7 +301,7 @@ export default class Main extends cc.Component {
             this.Cell_intermediary.getComponent(Cell).Add_cardEntermediary(this.cards_entermediary[i], this.ID_cell_old);
         }
     }
-    SetInputCardsEnterCellOld(id_CellOld: number) {
+    public SetInputCardsEnterCellOld(id_CellOld: number) {
         this.ID_cell_old = id_CellOld;
         let childs = this.Cell_intermediary.children;
         let test = [];
@@ -307,14 +317,22 @@ export default class Main extends cc.Component {
         }
         console.log("cell old", this.Cells[this.ID_cell_old].node.children);
     }
-    SetCardsCollider() {
+    public SetCardsCollider() {
         for (let i = 0; i < this.Cells.length; i++) {
             this.Cells[i].AddColliderCards_gameStart();
         }
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            this.FreeCell[i].AddColliderCards_gameStart();
+        }
     }
-    CheckAceCell_inputCards(idCellBottom: number, indexCard: number) {
-        let childs = this.Cells[idCellBottom].node.children;
-        let baseCard = childs[indexCard].getComponent(BaseCard);
+    public CheckAceCell_inputCards(idCellBottom: number, indexCard: number) {
+        let Cell_child: cc.Node[] = [];
+        if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
+            Cell_child = this.FreeCell[idCellBottom].node.children;
+        } else {
+            Cell_child = this.Cells[idCellBottom].node.children;
+        }
+        let baseCard = Cell_child[indexCard].getComponent(BaseCard);
         console.log('no day roi', baseCard);
         this.InitTypeAceCell();
         for (let i = 0; i < this.AceCell.length; i++) {
@@ -322,33 +340,51 @@ export default class Main extends cc.Component {
             if (!this.AceCell[i].getComponent(AceCell).cards_aceCell &&
                 baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
                 baseCard.number_index == 1) {
-                console.log("add at vao mang rong");
                 this.CounMovingAcecell++;
-                console.log("CounMovingAcecell", this.CounMovingAcecell)
+                this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
+                this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
                 let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
                 let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
+                baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
                 cc.tween(baseCard.node)
                     .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
                     .call(() => {
                         this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
                         this.Cells[idCellBottom].ResetCardsIndex();
                         this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
+                        if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
+                            this.FreeCell[idCellBottom].ResetCardsIndex();
+                            this.FreeCell[idCellBottom].EmitCheckChildsInCell(idCellBottom);
+                            this.RemoveCardFreeCell(idCellBottom);
+                        } else {
+                            this.Cells[idCellBottom].ResetCardsIndex();
+                            this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
+                        }
                     })
                     .start();
             }
             else if (this.AceCell[i].getComponent(AceCell).cards_aceCell &&
                 baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
                 this.AceCell[i].getComponent(AceCell).GetBaseCardForEndOfArr().number_index == baseCard.number_index - 1) {
-                console.log("add bai liên tiếp vào mang true");
+                this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
+                this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
                 this.CounMovingAcecell++;
                 let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
                 let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
+                baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
                 cc.tween(baseCard.node)
                     .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
                     .call(() => {
                         this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
-                        this.Cells[idCellBottom].ResetCardsIndex();
-                        this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
+                        if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
+                            this.FreeCell[idCellBottom].ResetCardsIndex();
+                            this.FreeCell[idCellBottom].EmitCheckChildsInCell(idCellBottom);
+                            this.RemoveCardFreeCell(idCellBottom);
+                        } else {
+                            this.Cells[idCellBottom].ResetCardsIndex();
+                            this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
+                        }
+
                         console.log("add được");
                     })
                     .start();
@@ -361,29 +397,32 @@ export default class Main extends cc.Component {
             this.CounMovingAcecell = 0;
         }
     }
-    CardMoveToInputFreeCell(baseCard: BaseCard, IDCellBottom: number) {
+    public CardMoveToInputFreeCell(baseCard: BaseCard, IDCellBottom: number) {
         for (let i = 0; i < this.FreeCell.length; i++) {
             console.log("free cell", this.FreeCell[i]);
             if (this.FreeCell[i].cards_freeCell.length == 0) {
                 let worldPosFreeCell = this.FreeCell[i].node.parent.convertToWorldSpaceAR(this.FreeCell[i].node.position);
                 let converToLocalCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosFreeCell);
+                baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
                 cc.tween(baseCard.node)
                     .to(0.1, { position: new cc.Vec3(converToLocalCard) })
                     .call(() => {
                         this.FreeCell[i].Add_freeCell(baseCard);
                         this.Cells[IDCellBottom].ResetCardsIndex();
                         this.Cells[IDCellBottom].EmitCheckChildsInCell(IDCellBottom);
-
+                        this.SetCardsCollider();
+                        this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
                     })
                     .start();
                 break;
             } else {
                 this.Cells[IDCellBottom].ResetCardsIndex();
                 this.Cells[IDCellBottom].EmitCheckChildsInCell(IDCellBottom);
+                this.SetCardsCollider();
             }
         }
     }
-    RemoveCardFreeCell(tagCell: number) {
+    public RemoveCardFreeCell(tagCell: number) {
         console.log("giet thang nay", tagCell);
         for (let i = 0; i < this.FreeCell.length; i++) {
             if (this.FreeCell[i].Tag == tagCell) {
@@ -394,11 +433,33 @@ export default class Main extends cc.Component {
             }
         }
     }
-    CheckChildsIncell(tagCell: number) {
+    public CheckChildsIncell(tagCell: number) {
         console.log("kiem tra thang nay");
         for (let i = 0; i < this.Cells.length; i++) {
-            if (this.Cells[i].cards.length == 0) {
+            if (this.Cells[i].node.children.length === 0) {
                 console.log("ep cho thằng này một cái collider vào mồm");
+                this.Cells[i].RemoveCards_cell();
+                let colliderNode = cc.instantiate(this.CardPrefab);
+                if (colliderNode) {
+                    colliderNode.position = this.Cells[i].node.position;
+                    this.Cells[i].node.addChild(colliderNode);
+                    colliderNode.setPosition(0, -30);
+                    colliderNode.addComponent(CardColliders);
+                    colliderNode.name = "ColliderNode";
+                    // colliderNode.addComponent(BaseCard);
+                    colliderNode.getComponent(BaseCard).tag_group = this.Cells[i].Tag;
+                    let childs = this.Cells[i].node.children;
+                    console.log(this.Cells[i].node.children);
+                }
+            }
+        }
+    }
+    public DeleteColliderNodeInCell(tagCell: number) {
+        console.log("delete collider node for cell");
+        for (let i = 0; i < this.Cells.length; i++) {
+            if (this.Cells[i].Tag == tagCell) {
+                let colliderNode = this.Cells[i].node.getChildByName("ColliderNode");
+                this.Cells[i].node.removeChild(colliderNode);
             }
         }
     }

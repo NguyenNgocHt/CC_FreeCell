@@ -44,14 +44,4 @@ export default class Helper extends cc.Component {
         }
         return result;
     }
-    public static ParseTime(time: number): string {
-        let result = "";
-
-        let min = time / 60;
-        let second = time % 60;
-        let minInt = parseInt(min.toString(), 10);
-        let secondInt = parseInt(second.toString(), 10);
-        result = minInt.toString() + ":" + second.toString();
-        return result;
-    }
 }

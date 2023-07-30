@@ -29,7 +29,7 @@ export class BaseCard extends cc.Component {
     private width: number = 85;
     private hight: number = 110;
     private originIndex: number = 0;
-    public tag_group: number;
+    public tag_group: number = 0
     private colliderNode: cc.Node = null;
     private isInit: boolean = false;
     public isMoving: boolean = false;
@@ -61,7 +61,6 @@ export class BaseCard extends cc.Component {
         this.isInit = true;
         this.cell = cell.getComponent(Cell);
         this.tag_group = this.cell.Tag;
-        console.log("tag group", this.tag_group);
         this.id = id;
         if (this.node.getComponent(CardMove)) {
             let cardMove = this.node.getComponent(CardMove);
