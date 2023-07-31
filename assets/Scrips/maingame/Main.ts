@@ -569,21 +569,65 @@ export default class Main extends cc.Component {
                 this.CheckCardInAllCell(cardsComparison[0]);
             }
         }
+        this.CheckCardWithCard();
+        this.CheckCellWithAceCells();
+        this.CheckCellWithFreeCells();
+        this.CheckFreeCellWithCells();
+        this.CheckFreeCellWithAceCell();
     }
     CheckCardInAllCell(cardCheck: BaseCard) {
         for (let i = 0; i < this.Cells.length; i++) {
-            let CardtopCells = this.Cells[i].GetTopCell();
-            if (this.Cells[i].Tag != cardCheck.tag_group && CardtopCells.number_index - 1 == cardCheck.number_index) {
-                console.log("may gan vao em nay");
-                CardtopCells.Select(true);
+            let CardTopCells = this.Cells[i].GetTopCell();
+            if (this.Cells[i].Tag != cardCheck.tag_group && CardTopCells.number_index - 1 == cardCheck.number_index) {
+                if (((CardTopCells.type == CardTypeStatus.CLUB || CardTopCells.type == CardTypeStatus.SPADE) &&
+                    (cardCheck.type == CardTypeStatus.DIAMOND || cardCheck.type == CardTypeStatus.HEART)) ||
+                    ((CardTopCells.type == CardTypeStatus.DIAMOND || CardTopCells.type == CardTypeStatus.HEART) &&
+                        (cardCheck.type == CardTypeStatus.CLUB || cardCheck.type == CardTypeStatus.SPADE))) {
+                    console.log("may gan vao em nay");
+                    CardTopCells.Select(true);
+                }
             } else {
                 console.log("khong co dau em oi");
             }
         }
     }
+    CheckCardWithCard() {
+        for (let i = 0; i < this.Cells.length - 1; i++) {
+            let cardTopInCell_A = this.Cells[i].GetTopCell();
+            for (let j = 1; j < this.Cells.length; j++) {
+                let cardTopInCell_B = this.Cells[j].GetTopCell();
+                if (cardTopInCell_A.tag_group != cardTopInCell_B.tag_group &&
+                    (cardTopInCell_A.number_index - 1 == cardTopInCell_B.number_index ||
+                        cardTopInCell_A.number_index == cardTopInCell_B.number_index - 1)) {
+                    if (((cardTopInCell_A.type == CardTypeStatus.CLUB || cardTopInCell_A.type == CardTypeStatus.SPADE) &&
+                        (cardTopInCell_B.type == CardTypeStatus.DIAMOND || cardTopInCell_B.type == CardTypeStatus.HEART)) ||
+                        ((cardTopInCell_A.type == CardTypeStatus.DIAMOND || cardTopInCell_A.type == CardTypeStatus.HEART) &&
+                            (cardTopInCell_B.type == CardTypeStatus.CLUB || cardTopInCell_B.type == CardTypeStatus.SPADE))) {
+                        console.log("may gan vao em nay");
+                        cardTopInCell_A.Select(true);
+                        cardTopInCell_B.Select(true);
+                    }
+                } else {
+                    console.log("khong co dau em oi");
+                }
+            }
+        }
+    }
     //cell with freeCell
+    CheckCellWithFreeCells() {
+
+    }
     //cell with aceCell
+    CheckCellWithAceCells() {
+
+    }
     //free cell with cell
+    CheckFreeCellWithCells() {
+
+    }
     //free cell with aceCell
+    CheckFreeCellWithAceCell() {
+
+    }
 }
 
