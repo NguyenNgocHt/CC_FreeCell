@@ -24,23 +24,23 @@
         "__id__": 5
       },
       {
-        "__id__": 177
+        "__id__": 182
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 180
+        "__id__": 185
       },
       {
-        "__id__": 181
+        "__id__": 186
       },
       {
-        "__id__": 182
+        "__id__": 187
       }
     ],
     "_prefab": {
-      "__id__": 183
+      "__id__": 188
     },
     "_opacity": 255,
     "_color": {
@@ -217,11 +217,11 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 175
+        "__id__": 180
       }
     ],
     "_prefab": {
-      "__id__": 176
+      "__id__": 181
     },
     "_opacity": 255,
     "_color": {
@@ -5061,26 +5061,29 @@
         "__id__": 152
       },
       {
-        "__id__": 156
+        "__id__": 157
       },
       {
-        "__id__": 160
+        "__id__": 162
       },
       {
-        "__id__": 164
+        "__id__": 167
       },
       {
-        "__id__": 168
+        "__id__": 172
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 173
+        "__id__": 177
+      },
+      {
+        "__id__": 178
       }
     ],
     "_prefab": {
-      "__id__": 174
+      "__id__": 179
     },
     "_opacity": 255,
     "_color": {
@@ -5254,7 +5257,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 155
+      "__id__": 156
     },
     "_opacity": 255,
     "_color": {
@@ -5347,7 +5350,11 @@
     "_grayMaterial": null,
     "duration": 0.1,
     "zoomScale": 1.2,
-    "clickEvents": [],
+    "clickEvents": [
+      {
+        "__id__": 155
+      }
+    ],
     "_N$interactable": true,
     "_N$enableAutoGrayEffect": false,
     "_N$transition": 3,
@@ -5406,6 +5413,16 @@
     "_id": ""
   },
   {
+    "__type__": "cc.ClickEvent",
+    "target": {
+      "__id__": 148
+    },
+    "component": "",
+    "_componentId": "496c9DHVLBJ57bHLFayBJv5",
+    "handler": "SetOptions",
+    "customEventData": ""
+  },
+  {
     "__type__": "cc.PrefabInfo",
     "root": {
       "__id__": 1
@@ -5427,14 +5444,14 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 157
+        "__id__": 158
       },
       {
-        "__id__": 158
+        "__id__": 159
       }
     ],
     "_prefab": {
-      "__id__": 159
+      "__id__": 161
     },
     "_opacity": 255,
     "_color": {
@@ -5488,7 +5505,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 156
+      "__id__": 157
     },
     "_enabled": true,
     "_materials": [
@@ -5520,14 +5537,18 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 156
+      "__id__": 157
     },
     "_enabled": true,
     "_normalMaterial": null,
     "_grayMaterial": null,
     "duration": 0.1,
     "zoomScale": 1.2,
-    "clickEvents": [],
+    "clickEvents": [
+      {
+        "__id__": 160
+      }
+    ],
     "_N$interactable": true,
     "_N$enableAutoGrayEffect": false,
     "_N$transition": 3,
@@ -5581,9 +5602,19 @@
     "hoverSprite": null,
     "_N$disabledSprite": null,
     "_N$target": {
-      "__id__": 156
+      "__id__": 157
     },
     "_id": ""
+  },
+  {
+    "__type__": "cc.ClickEvent",
+    "target": {
+      "__id__": 148
+    },
+    "component": "",
+    "_componentId": "496c9DHVLBJ57bHLFayBJv5",
+    "handler": "SetChallenge",
+    "customEventData": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -5607,14 +5638,14 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 161
+        "__id__": 163
       },
       {
-        "__id__": 162
+        "__id__": 164
       }
     ],
     "_prefab": {
-      "__id__": 163
+      "__id__": 166
     },
     "_opacity": 255,
     "_color": {
@@ -5668,7 +5699,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 160
+      "__id__": 162
     },
     "_enabled": true,
     "_materials": [
@@ -5700,14 +5731,18 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 160
+      "__id__": 162
     },
     "_enabled": true,
     "_normalMaterial": null,
     "_grayMaterial": null,
     "duration": 0.1,
     "zoomScale": 1.2,
-    "clickEvents": [],
+    "clickEvents": [
+      {
+        "__id__": 165
+      }
+    ],
     "_N$interactable": true,
     "_N$enableAutoGrayEffect": false,
     "_N$transition": 3,
@@ -5761,9 +5796,19 @@
     "hoverSprite": null,
     "_N$disabledSprite": null,
     "_N$target": {
-      "__id__": 160
+      "__id__": 162
     },
     "_id": ""
+  },
+  {
+    "__type__": "cc.ClickEvent",
+    "target": {
+      "__id__": 148
+    },
+    "component": "",
+    "_componentId": "496c9DHVLBJ57bHLFayBJv5",
+    "handler": "SetPopupGame",
+    "customEventData": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -5787,14 +5832,14 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 165
+        "__id__": 168
       },
       {
-        "__id__": 166
+        "__id__": 169
       }
     ],
     "_prefab": {
-      "__id__": 167
+      "__id__": 171
     },
     "_opacity": 255,
     "_color": {
@@ -5848,7 +5893,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 164
+      "__id__": 167
     },
     "_enabled": true,
     "_materials": [
@@ -5880,14 +5925,18 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 164
+      "__id__": 167
     },
     "_enabled": true,
     "_normalMaterial": null,
     "_grayMaterial": null,
     "duration": 0.1,
     "zoomScale": 1.2,
-    "clickEvents": [],
+    "clickEvents": [
+      {
+        "__id__": 170
+      }
+    ],
     "_N$interactable": true,
     "_N$enableAutoGrayEffect": false,
     "_N$transition": 3,
@@ -5941,9 +5990,19 @@
     "hoverSprite": null,
     "_N$disabledSprite": null,
     "_N$target": {
-      "__id__": 164
+      "__id__": 167
     },
     "_id": ""
+  },
+  {
+    "__type__": "cc.ClickEvent",
+    "target": {
+      "__id__": 148
+    },
+    "component": "",
+    "_componentId": "496c9DHVLBJ57bHLFayBJv5",
+    "handler": "SetHindGame",
+    "customEventData": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -5967,17 +6026,14 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 169
+        "__id__": 173
       },
       {
-        "__id__": 170
-      },
-      {
-        "__id__": 171
+        "__id__": 174
       }
     ],
     "_prefab": {
-      "__id__": 172
+      "__id__": 176
     },
     "_opacity": 255,
     "_color": {
@@ -6031,7 +6087,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 168
+      "__id__": 172
     },
     "_enabled": true,
     "_materials": [
@@ -6063,14 +6119,18 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 168
+      "__id__": 172
     },
     "_enabled": true,
     "_normalMaterial": null,
     "_grayMaterial": null,
     "duration": 0.1,
     "zoomScale": 1.2,
-    "clickEvents": [],
+    "clickEvents": [
+      {
+        "__id__": 175
+      }
+    ],
     "_N$interactable": true,
     "_N$enableAutoGrayEffect": false,
     "_N$transition": 3,
@@ -6124,20 +6184,19 @@
     "hoverSprite": null,
     "_N$disabledSprite": null,
     "_N$target": {
-      "__id__": 168
+      "__id__": 172
     },
     "_id": ""
   },
   {
-    "__type__": "70a73U+pypAqbiZYPsBWNUk",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 168
+    "__type__": "cc.ClickEvent",
+    "target": {
+      "__id__": 148
     },
-    "_enabled": true,
-    "CardButton": null,
-    "_id": ""
+    "component": "",
+    "_componentId": "496c9DHVLBJ57bHLFayBJv5",
+    "handler": "SetUndoGame",
+    "customEventData": ""
   },
   {
     "__type__": "cc.PrefabInfo",
@@ -6175,6 +6234,31 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 720,
     "_originalHeight": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "496c9DHVLBJ57bHLFayBJv5",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 148
+    },
+    "_enabled": true,
+    "Button_Undo": {
+      "__id__": 174
+    },
+    "Button_Hind": {
+      "__id__": 169
+    },
+    "Button_Game": {
+      "__id__": 164
+    },
+    "Button_Challenge": {
+      "__id__": 159
+    },
+    "Button_Options": {
+      "__id__": 154
+    },
     "_id": ""
   },
   {
@@ -6237,11 +6321,11 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 178
+        "__id__": 183
       }
     ],
     "_prefab": {
-      "__id__": 179
+      "__id__": 184
     },
     "_opacity": 255,
     "_color": {
@@ -6295,7 +6379,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 177
+      "__id__": 182
     },
     "_enabled": true,
     "_id": ""

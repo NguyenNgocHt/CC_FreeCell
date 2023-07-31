@@ -49,13 +49,15 @@ export default class Main extends cc.Component {
     private logs: Stack<CardLog>;
     private newGame: boolean = false;
     private isAuto: boolean = false;
-    private gameData: GameData;
+    private gameData: GameData = new GameData();
     private cards: BaseCard[];
     private cards_entermediary: BaseCard[];
     private ID_cell_old: number = 0;
     private CounMovingAcecell: number = 0;
     private isMovingFreecell: boolean;
     private singleTon: singleTon = null;
+    private GameDataStack: SaveData[] = [];
+    private currentGameStateIndex: number = -1;
     // LIFE-CYCLE CALLBACKS:
     //singleTon
     private static instance: Main | null = null;
@@ -84,9 +86,11 @@ export default class Main extends cc.Component {
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_REMOVE_CARD_FREECELL, this.RemoveCardFreeCell, this);
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL, this.CheckChildsIncell, this);
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE, this.DeleteColliderNodeInCell, this);
+            this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE, this.UpdateCountMove, this);
         }
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
+        this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE, this.UpdateCountMove, this);
     }
     protected onDisable(): void {
         for (let i = 0; i < this.Cells.length; i++) {
@@ -96,9 +100,11 @@ export default class Main extends cc.Component {
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_REMOVE_CARD_FREECELL);
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL);
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE);
+            this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE);
         }
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN);
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
+        this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE);
     }
     StartGame() {
         console.log("new game");
@@ -153,46 +159,59 @@ export default class Main extends cc.Component {
         save = new SaveData();
         for (let i = 0; i < this.Cells.length; i++) // Cell
         {
-            for (let j = 0; j < this.Cells[i].Length(); j++) {
-                save.AddCardInfor_Arr(this.Cells[i][j].GetCardInfo());
+            let chidls = this.Cells[i].node.children;
+            for (let j = 0; j < chidls.length; j++) {
+                save.AddCardInfor_Arr(chidls[j].getComponent(BaseCard).GetCardInfo());
             }
+            // for (let j = 0; j < this.Cells[i].Length(); j++) {
+
+            //     save.AddCardInfor_Arr(this.Cells[i][j].GetCardInfo());
+            // }
         }
         for (let i = 0; i < this.FreeCell.length; i++) // FCell
         {
-            for (let j = 0; j < this.FreeCell[i].Length(); j++) {
-                save.AddCardInfor_Arr(this.FreeCell[i][j].GetCardInfo());
+            let chidls = this.FreeCell[i].node.children;
+            for (let j = 0; j < chidls.length; j++) {
+                save.AddCardInfor_Arr(chidls[j].getComponent(BaseCard).GetCardInfo());
             }
+            // for (let j = 0; j < this.FreeCell[i].Length(); j++) {
+            //     save.AddCardInfor_Arr(this.FreeCell[i][j].GetCardInfo());
+            // }
         }
         for (let i = 0; i < this.AceCell.length; i++) // ACell
         {
-            for (let j = 0; j < this.AceCell[i].getComponent(AceCell).Length(); j++) {
-                save.AddCardInfor_Arr(this.AceCell[i][j].GetCardInfo());
+            let chidls = this.AceCell[i].children;
+            for (let j = 0; j < chidls.length; j++) {
+                save.AddCardInfor_Arr(chidls[j].getComponent(BaseCard).GetCardInfo());
             }
+            // for (let j = 0; j < this.AceCell[i].getComponent(AceCell).Length(); j++) {
+            //     save.AddCardInfor_Arr(this.AceCell[i][j].GetCardInfo());
+            // }
         }
         save.Init(this.gameData.score, this.gameData.time, this.gameData.move, this.gameData.undo, this.gameData.hint);
         return save;
     }
     public LoadGame(): boolean {
-        let loadData: SaveData
-        loadData = GameSave.Instance.LoadGame();
-        if (loadData != null) {
-            for (let i = 0; i < loadData.Count(); i++) {
-                let cardNode = cc.instantiate(this.CardPrefab);
-                if (cardNode) {
-                    cardNode.position = this.StartPosition.position;
-                    this.Temptransform.addChild(cardNode);
-                    let card = cardNode.getComponent(BaseCard);
-                    if (card) {
-                        card.Init(loadData.infos[i].numberIndex, loadData.infos[i].type, this.Temptransform, this);
-                    }
-                    let cell = this.ParseCell(loadData.infos[i].cell);
-                    cell.Add(card);
-                }
-            }
-            this.gameData = new GameData();
-            this.gameData.Init(loadData.score, loadData.time, loadData.move, loadData.undo, loadData.hint);
-            return true;
-        }
+        // let loadData: SaveData
+        // loadData = GameSave.Instance.LoadGame();
+        // if (loadData != null) {
+        //     for (let i = 0; i < loadData.Count(); i++) {
+        //         let cardNode = cc.instantiate(this.CardPrefab);
+        //         if (cardNode) {
+        //             cardNode.position = this.StartPosition.position;
+        //             this.Temptransform.addChild(cardNode);
+        //             let card = cardNode.getComponent(BaseCard);
+        //             if (card) {
+        //                 card.Init(loadData.infos[i].numberIndex, loadData.infos[i].type, this.Temptransform, this);
+        //             }
+        //             let cell = this.ParseCell(loadData.infos[i].cell);
+        //             cell.Add(card);
+        //         }
+        //     }
+        //     this.gameData = new GameData();
+        //     this.gameData.Init(loadData.score, loadData.time, loadData.move, loadData.undo, loadData.hint);
+        //     return true;
+        // }
         return false;
     }
     public ParseCell(i: number): Cell {
@@ -259,6 +278,7 @@ export default class Main extends cc.Component {
         if (i >= this.cards.length) {
             this.SetCardsCollider();
             this.TopManager.getComponent(TopGroupManager).SettimerStart(true);
+            this.GetDataGame();
             // GameManager.Instance.CloseLoading();
             return;
         }
@@ -350,6 +370,7 @@ export default class Main extends cc.Component {
                     .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
                     .call(() => {
                         this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
+                        this.GetDataGame();
                         this.Cells[idCellBottom].ResetCardsIndex();
                         this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
                         if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
@@ -376,6 +397,7 @@ export default class Main extends cc.Component {
                     .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
                     .call(() => {
                         this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
+                        this.GetDataGame();
                         if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
                             this.FreeCell[idCellBottom].ResetCardsIndex();
                             this.FreeCell[idCellBottom].EmitCheckChildsInCell(idCellBottom);
@@ -412,6 +434,7 @@ export default class Main extends cc.Component {
                         this.Cells[IDCellBottom].EmitCheckChildsInCell(IDCellBottom);
                         this.SetCardsCollider();
                         this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
+                        this.GetDataGame();
                     })
                     .start();
                 break;
@@ -461,6 +484,78 @@ export default class Main extends cc.Component {
                 let colliderNode = this.Cells[i].node.getChildByName("ColliderNode");
                 this.Cells[i].node.removeChild(colliderNode);
             }
+        }
+    }
+    //push undo
+    UpdateCountMove() {
+        console.log("an 1 diem vao mom");
+        this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
+        this.GetDataGame();
+    }
+    GetDataGame() {
+        this.currentGameStateIndex++;
+        console.log(this.TopManager.getComponent(TopGroupManager).Game_Data);
+        let data_game = this.TopManager.getComponent(TopGroupManager).Game_Data;
+        if (data_game) {
+            this.gameData.Init(data_game.score, data_game.time, data_game.move, data_game.undo, data_game.hint);
+        }
+        let saveGame = this.SaveGame();
+        // if (this.currentGameStateIndex < this.GameDataStack.length - 1) {
+        //     this.GameDataStack.splice(this.currentGameStateIndex); // Xóa các trạng thái tiếp theo trong trường hợp đã undo trước đó
+        // }
+        this.GameDataStack.push(saveGame);
+        console.log(this.GameDataStack);
+    }
+    LoadEndShowGameData(saveGameData: SaveData) {
+        this.RemoveAllChildsInCells();
+        console.log("load game data");
+        for (let i = 0; i < saveGameData.Count(); i++) {
+            let cardNode = cc.instantiate(this.CardPrefab);
+            if (cardNode) {
+                cardNode.position = this.StartPosition.position;
+                this.Temptransform.addChild(cardNode);
+                let card = cardNode.getComponent(BaseCard);
+                if (card) {
+                    card.Init(saveGameData.infos[i].numberIndex, saveGameData.infos[i].type, this.Temptransform, this);
+                }
+                let cell = this.ParseCell(saveGameData.infos[i].cell);
+                cell.Add(card);
+            }
+        }
+        this.gameData = new GameData();
+        this.gameData.Init(saveGameData.score, saveGameData.time, saveGameData.move, saveGameData.undo, saveGameData.hint);
+        this.SetCardsCollider();
+        console.log("saveGameData", this.GameDataStack);
+    }
+    //undo onclick button
+    public onUndoButtonClick() {
+        console.log("gamedata leght", this.GameDataStack.length)
+        console.log("onclick to main");
+        if (this.GameDataStack.length > 1) {
+            let gameData = this.GameDataStack[this.GameDataStack.length - 2]
+            console.log("gamedata > 1", gameData)
+            this.GameDataStack.pop();
+            this.LoadEndShowGameData(gameData);
+        } else if (this.GameDataStack.length == 1) {
+            console.log("gamedata = 1", this.GameDataStack[0])
+            this.LoadEndShowGameData(this.GameDataStack[0]);
+        }
+    }
+    // RestoreGameState(currentGameStateIndex: number) {
+    //     if (currentGameStateIndex <= this.GameDataStack.length - 1) {
+    //         let gameData = this.GameDataStack[currentGameStateIndex];
+    //         this.LoadEndShowGameData(gameData);
+    //     }
+    // }
+    RemoveAllChildsInCells() {
+        for (let i = 0; i < this.Cells.length; i++) {
+            this.Cells[i].RemoveAllChildsAndCard();
+        }
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            this.FreeCell[i].RemoveAllChildsAndCard();
+        }
+        for (let i = 0; i < this.AceCell.length; i++) {
+            this.AceCell[i].getComponent(AceCell).RemoveAllChildsAndCard();
         }
     }
 }

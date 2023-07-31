@@ -40,6 +40,7 @@ export default class Cell extends cc.Component {
         }
     }
     public Add(card: BaseCard) {
+        console.log("chi so index card và số cell", card.number_index, this.id);
         if (!this.cards) {
             this.cards = [];
         }
@@ -89,14 +90,28 @@ export default class Cell extends cc.Component {
         this.SetPositionAllChild_InputCardsEnterCellOld();
     }
     SetPositionAllChild() {
-        console.log("set posiiton all chidls");
-        let childs = this.node.children;
-        for (let i = 0; i < childs.length; i++) {
-            childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = false;
-            if (childs[i].getComponent(BaseCard).id == 1) {
-                childs[i].setPosition(this.node.position.x, this.node.position.y)
-            } else {
-                childs[i].setPosition(this.node.position.x, this.node.position.y - i * 50);
+        if (this.Tag == 1 || this.Tag == 2 || this.Tag == 3 || this.Tag == 4 || this.Tag == 5 || this.Tag == 6 || this.Tag == 7 || this.Tag == 8) {
+            console.log("set posiiton all chidls");
+            let childs = this.node.children;
+            for (let i = 0; i < childs.length; i++) {
+                childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = false;
+                if (childs[i].getComponent(BaseCard).id == 1) {
+                    childs[i].setPosition(this.node.position.x, this.node.position.y)
+                } else {
+                    childs[i].setPosition(this.node.position.x, this.node.position.y - i * 50);
+                }
+            }
+        } else if (this.Tag == 10 || this.Tag == 11 || this.Tag == 12 || this.Tag == 13) {
+            console.log("set posiiton all chidls");
+            let childs = this.node.children;
+            for (let i = 0; i < childs.length; i++) {
+                childs[i].setPosition(0, 0);
+            }
+        } else if (this.Tag == 14 || this.Tag == 15 || this.Tag == 16 || this.Tag == 17) {
+            console.log("set posiiton all chidls");
+            let childs = this.node.children;
+            for (let i = 0; i < childs.length; i++) {
+                childs[i].setPosition(0, 0);
             }
         }
     }
@@ -334,7 +349,16 @@ export default class Cell extends cc.Component {
     public RemoveCards_cell() {
         this.cards = [];
     }
-
+    public RemoveAllChildsAndCard() {
+        this.node.removeAllChildren();
+        this.cards = [];
+        this.cards_freeCell = [];
+        this.cards_aceCell = [];
+        this.carts_intermediaryOutput = [];
+        this.Cards_intermediaryInput = [];
+        this.cards_index = [];
+        this.cards_inputCardEnterCellOld = [];
+    }
     //emit to main
     Emit_data_toMain() {
         this.RemoveCardInCards();
@@ -366,5 +390,8 @@ export default class Cell extends cc.Component {
     public EmitDeleteColliderInCell(TagCell: number) {
         console.log("emit delete collider Node in cell rong");
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE, TagCell);
+    }
+    public EmitUpdateCountMove() {
+        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE);
     }
 }

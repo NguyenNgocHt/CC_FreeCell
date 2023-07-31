@@ -98,6 +98,7 @@ export default class CardMove extends cc.Component {
     }
     public CardMovingOrigin() {
         if (!this.isInputCell) {
+            this.Mouse_status = MOUSE_STATUS.NO_STATUS;
             if (this.node.getComponent(BaseCard).tag_group == 9) {
                 cc.tween(this.node.parent)
                     .to(0.1, { position: new cc.Vec3(this.node.parent.getComponent(Cell).posCell_intermediry) })
@@ -117,6 +118,7 @@ export default class CardMove extends cc.Component {
             }
 
         } else {
+            this.Mouse_status = MOUSE_STATUS.NO_STATUS;
             this.isMoving = false;
             this.isInputCell = false;
             this.SetOilIndexNode();

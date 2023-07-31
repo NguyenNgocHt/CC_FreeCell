@@ -19,6 +19,13 @@ export default class GameData extends cc.Component {
     timeCallback: ActionFloat | null = null;
     scoreCallback: ActionInt | null = null;
     moveCallback: ActionInt | null = null;
+    protected start(): void {
+        this.score = 0;
+        this.time = 0;
+        this.move = 0;
+        this.undo = 0;
+        this.hint = 0;
+    }
     invokeScoreCallback(): void {
         if (this.scoreCallback) {
             this.scoreCallback(this.TrueScore);
@@ -47,5 +54,11 @@ export default class GameData extends cc.Component {
 
         const result: number = this.score - Math.floor(this.time / 10);
         return result <= 0 ? 0 : result;
+    }
+    public AddHint() {
+        this.hint += 1;
+    }
+    public AddUndo() {
+        this.undo += 1;
     }
 }
