@@ -557,6 +557,30 @@ export default class Main extends cc.Component {
     }
     //****************************************SET HIND********************************************//
     //cell with cell
+    public CheckHindCellWithCell() {
+        let cardsComparison: BaseCard[] = [];
+        for (let i = 0; i < this.Cells.length; i++) {
+            cardsComparison = this.Cells[i].CheckConsecutiveCards();
+            if (cardsComparison) {
+                console.log("tim duoc em để anh mang đi bán rồi ", cardsComparison);
+                for (let j = 0; j < cardsComparison.length; j++) {
+                    cardsComparison[j].Select(true);
+                }
+                this.CheckCardInAllCell(cardsComparison[0]);
+            }
+        }
+    }
+    CheckCardInAllCell(cardCheck: BaseCard) {
+        for (let i = 0; i < this.Cells.length; i++) {
+            let CardtopCells = this.Cells[i].GetTopCell();
+            if (this.Cells[i].Tag != cardCheck.tag_group && CardtopCells.number_index - 1 == cardCheck.number_index) {
+                console.log("may gan vao em nay");
+                CardtopCells.Select(true);
+            } else {
+                console.log("khong co dau em oi");
+            }
+        }
+    }
     //cell with freeCell
     //cell with aceCell
     //free cell with cell

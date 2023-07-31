@@ -111,6 +111,7 @@ export default class CardMove extends cc.Component {
                 cc.tween(this.node)
                     .to(0.1, { position: new cc.Vec3(this.originPosition) })
                     .call(() => {
+                        this.node.getComponent(BaseCard).Select(false);
                         this.isMoving = false;
                         this.SetOilIndexNode();
                     })

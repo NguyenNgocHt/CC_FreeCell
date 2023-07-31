@@ -19,6 +19,7 @@ export default class Cell extends cc.Component {
     private cards_inputCardEnterCellOld: BaseCard[];
     private cards_temporary: BaseCard[];
     private cards_index: number[];
+    private card_copyComparison: BaseCard[];
     private successInit_index: number;
     public id_cell_old: number;
     public posCell_intermediry: cc.Vec3 = new cc.Vec3(0, 0, 0);
@@ -29,6 +30,7 @@ export default class Cell extends cc.Component {
     start() {
         this.successInit_index = 0;
         this.cards = [];
+        this.card_copyComparison = [];
     }
     protected onDisable(): void {
         let childs = this.node.children;
@@ -207,6 +209,7 @@ export default class Cell extends cc.Component {
         console.log("cards trước khi tách cell", this.cards);
         console.log('successInit_index != cardIndex');
         this.carts_intermediaryOutput = [];
+        this.card_copyComparison = [];
         let childs = this.node.children;
         let standardNumber = childs.length - cardIndex;
         let actualNumber = 0;
@@ -221,15 +224,18 @@ export default class Cell extends cc.Component {
                                 (childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.CLUB || childs[i + 1].getComponent(BaseCard).type == CardTypeStatus.SPADE))) {
                             actualNumber += 1;
                             this.carts_intermediaryOutput.push(childs[i].getComponent(BaseCard));
+                            this.card_copyComparison.push(childs[i].getComponent(BaseCard));
                         }
                     }
                 }
                 else if (i == childs.length - 1 && actualNumber == standardNumber - 1) {
                     this.carts_intermediaryOutput.push(childs[i].getComponent(BaseCard));
-                    console.log("carts_intermediary" + this.carts_intermediaryOutput);
-                    console.log("có thể chuyển");
-                    if (this.carts_intermediaryOutput.length >= 1) {
-                        this.Emit_data_toMain();
+                    this.card_copyComparison.push(childs[i].getComponent(BaseCard));
+                    console.log("carts_intermediary", this.carts_intermediaryOutput);
+                    console.log("card_copyComparison", this.card_copyComparison);
+                    if (this.card_copyComparison.length >= 2) {
+                        console.log("có thể chuyển");
+                        // this.Emit_data_toMain();
                         return true;
                     }
                 }
@@ -284,12 +290,14 @@ export default class Cell extends cc.Component {
         for (let i = 0; i < childs.length; i++) {
             if (i == indexMax) {
                 if (indexMax == childs.length - 1) {
-                    // console.log(childs[i].getComponent(BaseCard));
                     childs[i].getComponent(CardMove).isMoving = true;
+                    childs[i].getComponent(BaseCard).Select(true);
                     this.node.parent.setSiblingIndex(9);
                     this.ResetCardsIndex();
                 } else {
                     if (this.CheckBaseCard(i)) {
+                        console.log("emit intermediry");
+                        this.Emit_data_toMain();
                         this.ResetCardsIndex();
                     } else {
                         childs[i].getComponent(CardMove).isMoving = false;
@@ -357,13 +365,20 @@ export default class Cell extends cc.Component {
         this.cards_index = [];
         this.cards_inputCardEnterCellOld = [];
     }
-    public CheckConsecutiveCards() {
+    public CheckConsecutiveCards(): BaseCard[] {
         let chidls = this.node.children;
-        for (let i = 0; i < chidls.length - 1; i++) {
-            for (let j = 1; j < chidls.length; j++) {
-
+        this.card_copyComparison = [];
+        for (let i = 0; i < chidls.length; i++) {
+            if (this.CheckBaseCard(i)) {
+                console.log("chuyển đi em ơi");
+                return this.card_copyComparison;
             }
         }
+    }
+    public GetTopCell(): BaseCard {
+        let childs = this.node.children;
+        let chidlsLength = childs.length;
+        return childs[chidlsLength - 1].getComponent(BaseCard);
     }
     //emit to main
     Emit_data_toMain() {
