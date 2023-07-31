@@ -1,5 +1,6 @@
 
 import { BaseCard } from "../CardGroup/BaseCard";
+import CardColliders from "../CardGroup/CardColliders";
 import CardMove from "../CardGroup/CardMove";
 import { CardTypeStatus } from "../CardGroup/CardType";
 import { GAME_LISTEN_TO_EVENTS, MOUSE_ONCLICK_LEFT_RIGHT_STATUS } from "../audio/config";
@@ -18,8 +19,6 @@ export default class Cell extends cc.Component {
     private cards_inputCardEnterCellOld: BaseCard[];
     private cards_temporary: BaseCard[];
     private cards_index: number[];
-    public cards_freeCell: BaseCard[];
-    public cards_aceCell: BaseCard[];
     private successInit_index: number;
     public id_cell_old: number;
     public posCell_intermediry: cc.Vec3 = new cc.Vec3(0, 0, 0);
@@ -29,7 +28,6 @@ export default class Cell extends cc.Component {
     private IndexCard_onclick: number = 0;
     start() {
         this.successInit_index = 0;
-        this.cards_freeCell = [];
         this.cards = [];
     }
     protected onDisable(): void {
@@ -112,6 +110,8 @@ export default class Cell extends cc.Component {
             let childs = this.node.children;
             for (let i = 0; i < childs.length; i++) {
                 childs[i].setPosition(0, 0);
+                childs[i].removeComponent(CardMove);
+                childs[i].removeComponent(CardColliders);
             }
         }
     }
@@ -344,7 +344,7 @@ export default class Cell extends cc.Component {
         this.posCell_intermediry = posStart;
     }
     public RemoveCards_freecell() {
-        this.cards_freeCell = [];
+        this.cards = [];
     }
     public RemoveCards_cell() {
         this.cards = [];
@@ -352,12 +352,18 @@ export default class Cell extends cc.Component {
     public RemoveAllChildsAndCard() {
         this.node.removeAllChildren();
         this.cards = [];
-        this.cards_freeCell = [];
-        this.cards_aceCell = [];
         this.carts_intermediaryOutput = [];
         this.Cards_intermediaryInput = [];
         this.cards_index = [];
         this.cards_inputCardEnterCellOld = [];
+    }
+    public CheckConsecutiveCards() {
+        let chidls = this.node.children;
+        for (let i = 0; i < chidls.length - 1; i++) {
+            for (let j = 1; j < chidls.length; j++) {
+
+            }
+        }
     }
     //emit to main
     Emit_data_toMain() {

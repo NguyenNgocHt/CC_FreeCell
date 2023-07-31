@@ -357,59 +357,61 @@ export default class Main extends cc.Component {
         this.InitTypeAceCell();
         for (let i = 0; i < this.AceCell.length; i++) {
             console.log("nhay vao day", this.AceCell[i].getComponent(AceCell));
-            if (!this.AceCell[i].getComponent(AceCell).cards_aceCell &&
-                baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
-                baseCard.number_index == 1) {
-                this.CounMovingAcecell++;
-                this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
-                this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
-                let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
-                let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
-                baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
-                cc.tween(baseCard.node)
-                    .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
-                    .call(() => {
-                        this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
-                        this.GetDataGame();
-                        this.Cells[idCellBottom].ResetCardsIndex();
-                        this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
-                        if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
-                            this.FreeCell[idCellBottom].ResetCardsIndex();
-                            this.FreeCell[idCellBottom].EmitCheckChildsInCell(idCellBottom);
-                            this.RemoveCardFreeCell(idCellBottom);
-                        } else {
+            if (this.AceCell[i].getComponent(AceCell).cards.length == 0) {
+                if (baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
+                    baseCard.number_index == 1) {
+                    this.CounMovingAcecell++;
+                    this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
+                    this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
+                    let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
+                    let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
+                    baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
+                    cc.tween(baseCard.node)
+                        .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
+                        .call(() => {
+                            this.AceCell[i].getComponent(AceCell).Add(baseCard);
+                            this.GetDataGame();
                             this.Cells[idCellBottom].ResetCardsIndex();
                             this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
-                        }
-                    })
-                    .start();
+                            if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
+                                this.FreeCell[idCellBottom].ResetCardsIndex();
+                                this.CheckChildsIncell(idCellBottom);
+                                this.RemoveCardFreeCell(idCellBottom);
+                            } else {
+                                this.Cells[idCellBottom].ResetCardsIndex();
+                                this.CheckChildsIncell(idCellBottom);
+                            }
+                        })
+                        .start();
+                }
             }
-            else if (this.AceCell[i].getComponent(AceCell).cards_aceCell &&
-                baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
-                this.AceCell[i].getComponent(AceCell).GetBaseCardForEndOfArr().number_index == baseCard.number_index - 1) {
-                this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
-                this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
-                this.CounMovingAcecell++;
-                let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
-                let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
-                baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
-                cc.tween(baseCard.node)
-                    .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
-                    .call(() => {
-                        this.AceCell[i].getComponent(AceCell).Add_aceCell(baseCard);
-                        this.GetDataGame();
-                        if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
-                            this.FreeCell[idCellBottom].ResetCardsIndex();
-                            this.FreeCell[idCellBottom].EmitCheckChildsInCell(idCellBottom);
-                            this.RemoveCardFreeCell(idCellBottom);
-                        } else {
-                            this.Cells[idCellBottom].ResetCardsIndex();
-                            this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
-                        }
+            else if (this.AceCell[i].getComponent(AceCell).cards.length >= 1) {
+                if (baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
+                    this.AceCell[i].getComponent(AceCell).GetBaseCardForEndOfArr().number_index == baseCard.number_index - 1) {
+                    this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
+                    this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
+                    this.CounMovingAcecell++;
+                    let worldPosAceCell = this.AceCell[i].parent.convertToWorldSpaceAR(this.AceCell[i].position);
+                    let PosAceCellConvertToCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosAceCell);
+                    baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
+                    cc.tween(baseCard.node)
+                        .to(0.1, { position: new cc.Vec3(PosAceCellConvertToCard) })
+                        .call(() => {
+                            this.AceCell[i].getComponent(AceCell).Add(baseCard);
+                            this.GetDataGame();
+                            if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
+                                this.FreeCell[idCellBottom].ResetCardsIndex();
+                                this.CheckChildsIncell(idCellBottom);
+                                this.RemoveCardFreeCell(idCellBottom);
+                            } else {
+                                this.Cells[idCellBottom].ResetCardsIndex();
+                                this.CheckChildsIncell(idCellBottom);
+                            }
 
-                        console.log("add được");
-                    })
-                    .start();
+                            console.log("add được");
+                        })
+                        .start();
+                }
             }
         }
         if (this.CounMovingAcecell == 0) {
@@ -422,14 +424,14 @@ export default class Main extends cc.Component {
     public CardMoveToInputFreeCell(baseCard: BaseCard, IDCellBottom: number) {
         for (let i = 0; i < this.FreeCell.length; i++) {
             console.log("free cell", this.FreeCell[i]);
-            if (this.FreeCell[i].cards_freeCell.length == 0) {
+            if (this.FreeCell[i].cards.length == 0) {
                 let worldPosFreeCell = this.FreeCell[i].node.parent.convertToWorldSpaceAR(this.FreeCell[i].node.position);
                 let converToLocalCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosFreeCell);
                 baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
                 cc.tween(baseCard.node)
                     .to(0.1, { position: new cc.Vec3(converToLocalCard) })
                     .call(() => {
-                        this.FreeCell[i].Add_freeCell(baseCard);
+                        this.FreeCell[i].Add(baseCard);
                         this.Cells[IDCellBottom].ResetCardsIndex();
                         this.Cells[IDCellBottom].EmitCheckChildsInCell(IDCellBottom);
                         this.SetCardsCollider();
@@ -450,8 +452,8 @@ export default class Main extends cc.Component {
         for (let i = 0; i < this.FreeCell.length; i++) {
             if (this.FreeCell[i].Tag == tagCell) {
                 this.FreeCell[i].RemoveCards_freecell();
-                if (this.FreeCell[i].cards_freeCell.length == 0) {
-                    console.log(this.FreeCell[i].cards_freeCell);
+                if (this.FreeCell[i].cards.length == 0) {
+                    console.log(this.FreeCell[i].cards);
                 }
             }
         }
@@ -486,7 +488,7 @@ export default class Main extends cc.Component {
             }
         }
     }
-    //push undo
+    //*******************************************SET UNDO***************************************************//
     UpdateCountMove() {
         console.log("an 1 diem vao mom");
         this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
@@ -500,9 +502,6 @@ export default class Main extends cc.Component {
             this.gameData.Init(data_game.score, data_game.time, data_game.move, data_game.undo, data_game.hint);
         }
         let saveGame = this.SaveGame();
-        // if (this.currentGameStateIndex < this.GameDataStack.length - 1) {
-        //     this.GameDataStack.splice(this.currentGameStateIndex); // Xóa các trạng thái tiếp theo trong trường hợp đã undo trước đó
-        // }
         this.GameDataStack.push(saveGame);
         console.log(this.GameDataStack);
     }
@@ -525,6 +524,7 @@ export default class Main extends cc.Component {
         this.gameData = new GameData();
         this.gameData.Init(saveGameData.score, saveGameData.time, saveGameData.move, saveGameData.undo, saveGameData.hint);
         this.SetCardsCollider();
+        this.UpdateTopGroup(saveGameData);
         console.log("saveGameData", this.GameDataStack);
     }
     //undo onclick button
@@ -541,12 +541,6 @@ export default class Main extends cc.Component {
             this.LoadEndShowGameData(this.GameDataStack[0]);
         }
     }
-    // RestoreGameState(currentGameStateIndex: number) {
-    //     if (currentGameStateIndex <= this.GameDataStack.length - 1) {
-    //         let gameData = this.GameDataStack[currentGameStateIndex];
-    //         this.LoadEndShowGameData(gameData);
-    //     }
-    // }
     RemoveAllChildsInCells() {
         for (let i = 0; i < this.Cells.length; i++) {
             this.Cells[i].RemoveAllChildsAndCard();
@@ -558,5 +552,14 @@ export default class Main extends cc.Component {
             this.AceCell[i].getComponent(AceCell).RemoveAllChildsAndCard();
         }
     }
+    UpdateTopGroup(saveGameData: SaveData) {
+        this.TopManager.getComponent(TopGroupManager).initAllInfo(saveGameData.score, saveGameData.move);
+    }
+    //****************************************SET HIND********************************************//
+    //cell with cell
+    //cell with freeCell
+    //cell with aceCell
+    //free cell with cell
+    //free cell with aceCell
 }
 

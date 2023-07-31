@@ -33,6 +33,20 @@ export default class TopGroupManager extends cc.Component {
     }
     start() {
         this.initTopManager();
+        this.InitTopInfo();
+    }
+    //  this.Game_Data.Init(this.number_score, this.totalSecond, this.countMove, this.countMove, this.countMove);
+    public initAllInfo(score: number, move: number) {
+        this.number_score = score;
+        this.countMove = move;
+        this.ShowScore(this.number_score);
+        this.ShowMove(this.countMove);
+    }
+    InitTopInfo() {
+        this.number_score = 0;
+        this.totalSecond = 0;
+        this.countMove = 0;
+        this.UpdateGameGata();
     }
     initTopManager() {
         let pointNode = this.Score.getChildByName("point");
@@ -95,7 +109,10 @@ export default class TopGroupManager extends cc.Component {
     }
     public ShowCountMove(moveNumber: number) {
         this.countMove += moveNumber;
-        this.labelMove.string = this.countMove.toString();
+        this.ShowMove(this.countMove);
+    }
+    ShowMove(countMove: number) {
+        this.labelMove.string = countMove.toString();
         this.UpdateGameGata();
     }
     UpdateGameGata() {
