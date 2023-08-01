@@ -1,28 +1,30 @@
-// Learn TypeScript:
-//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/typescript.html
-// Learn Attribute:
-//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/reference/attributes.html
-// Learn life-cycle callbacks:
-//  - https://docs.cocos.com/creator/2.4/manual/en/scripting/life-cycle-callbacks.html
+import Main from "./Main";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class GameControler extends cc.Component {
-
-    @property(cc.Label)
-    label: cc.Label = null;
-
-    @property
-    text: string = 'hello';
-
-    // LIFE-CYCLE CALLBACKS:
-
-    // onLoad () {}
-
-    start() {
+    @property(cc.Node)
+    MainGame: cc.Node = null;
+    @property(cc.Node)
+    MenuGame: cc.Node = null;
+    @property(cc.Node)
+    Options: cc.Node = null;
+    public ShowMenuGame() {
+        this.MenuGame.active = true;
+    }
+    public CloseMenuGame() {
+        this.MenuGame.active = false;
+    }
+    public SetNewGameToMain() {
+        this.MainGame.getComponent(Main).SetNewGame();
+        this.MenuGame.active = false;
+    }
+    public SetReplay() {
+        this.MainGame.getComponent(Main).SetNewGame();
+        this.MenuGame.active = false;
+    }
+    public SetOptions() {
 
     }
-
-    // update (dt) {}
 }

@@ -19,6 +19,7 @@ import CellMove from "../cellGroup/CellMove";
 import CardColliders from "../CardGroup/CardColliders";
 import singleTon from "./Sigleton";
 import TopGroupManager from "../topGroup/TopGroupManager";
+import { GameControler } from "./GameControler";
 const { ccclass, property } = cc._decorator;
 export class CardLog {
     public card: BaseCard;
@@ -88,6 +89,9 @@ export default class Main extends cc.Component {
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE, this.DeleteColliderNodeInCell, this);
             this.Cells[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE, this.UpdateCountMove, this);
         }
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            this.FreeCell[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.CheckAceCell_inputCards, this);
+        }
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE, this.UpdateCountMove, this);
@@ -101,6 +105,9 @@ export default class Main extends cc.Component {
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_CHECK_CHILDS_FOR_CELL);
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE);
             this.Cells[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE);
+        }
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            this.FreeCell[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT);
         }
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN);
         this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
@@ -161,12 +168,10 @@ export default class Main extends cc.Component {
         {
             let chidls = this.Cells[i].node.children;
             for (let j = 0; j < chidls.length; j++) {
-                save.AddCardInfor_Arr(chidls[j].getComponent(BaseCard).GetCardInfo());
+                if (chidls[j].name != "ColliderNode") {
+                    save.AddCardInfor_Arr(chidls[j].getComponent(BaseCard).GetCardInfo());
+                }
             }
-            // for (let j = 0; j < this.Cells[i].Length(); j++) {
-
-            //     save.AddCardInfor_Arr(this.Cells[i][j].GetCardInfo());
-            // }
         }
         for (let i = 0; i < this.FreeCell.length; i++) // FCell
         {
@@ -174,9 +179,6 @@ export default class Main extends cc.Component {
             for (let j = 0; j < chidls.length; j++) {
                 save.AddCardInfor_Arr(chidls[j].getComponent(BaseCard).GetCardInfo());
             }
-            // for (let j = 0; j < this.FreeCell[i].Length(); j++) {
-            //     save.AddCardInfor_Arr(this.FreeCell[i][j].GetCardInfo());
-            // }
         }
         for (let i = 0; i < this.AceCell.length; i++) // ACell
         {
@@ -184,9 +186,6 @@ export default class Main extends cc.Component {
             for (let j = 0; j < chidls.length; j++) {
                 save.AddCardInfor_Arr(chidls[j].getComponent(BaseCard).GetCardInfo());
             }
-            // for (let j = 0; j < this.AceCell[i].getComponent(AceCell).Length(); j++) {
-            //     save.AddCardInfor_Arr(this.AceCell[i][j].GetCardInfo());
-            // }
         }
         save.Init(this.gameData.score, this.gameData.time, this.gameData.move, this.gameData.undo, this.gameData.hint);
         return save;
@@ -346,9 +345,15 @@ export default class Main extends cc.Component {
         }
     }
     public CheckAceCell_inputCards(idCellBottom: number, indexCard: number) {
+        console.log("idCellBottom: number, indexCard: number", idCellBottom, indexCard);
         let Cell_child: cc.Node[] = [];
-        if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
-            Cell_child = this.FreeCell[idCellBottom].node.children;
+        if (idCellBottom == 8 || idCellBottom == 9 || idCellBottom == 10 || idCellBottom == 11) {
+            for (let i = 0; i < this.FreeCell.length; i++) {
+                if (i == idCellBottom - 8) {
+                    Cell_child = this.FreeCell[i].node.children;
+                }
+            }
+            console.log("Cell_child", Cell_child);
         } else {
             Cell_child = this.Cells[idCellBottom].node.children;
         }
@@ -373,10 +378,10 @@ export default class Main extends cc.Component {
                             this.GetDataGame();
                             this.Cells[idCellBottom].ResetCardsIndex();
                             this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
-                            if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
-                                this.FreeCell[idCellBottom].ResetCardsIndex();
-                                this.CheckChildsIncell(idCellBottom);
-                                this.RemoveCardFreeCell(idCellBottom);
+                            if (idCellBottom == 8 || idCellBottom == 9 || idCellBottom == 10 || idCellBottom == 11) {
+                                this.FreeCell[idCellBottom - 8].ResetCardsIndex();
+                                this.CheckChildsIncell(idCellBottom - 8);
+                                this.RemoveCardFreeCell(idCellBottom + 2);
                             } else {
                                 this.Cells[idCellBottom].ResetCardsIndex();
                                 this.CheckChildsIncell(idCellBottom);
@@ -399,10 +404,11 @@ export default class Main extends cc.Component {
                         .call(() => {
                             this.AceCell[i].getComponent(AceCell).Add(baseCard);
                             this.GetDataGame();
-                            if (idCellBottom == 10 || idCellBottom == 11 || idCellBottom == 12 || idCellBottom == 13) {
-                                this.FreeCell[idCellBottom].ResetCardsIndex();
-                                this.CheckChildsIncell(idCellBottom);
-                                this.RemoveCardFreeCell(idCellBottom);
+                            if (idCellBottom == 8 || idCellBottom == 9 || idCellBottom == 10 || idCellBottom == 11) {
+                                this.FreeCell[idCellBottom - 8].ResetCardsIndex();
+                                this.CheckChildsIncell(idCellBottom - 8);
+                                console.log("remove cards in free cell");
+                                this.RemoveCardFreeCell(idCellBottom + 2);
                             } else {
                                 this.Cells[idCellBottom].ResetCardsIndex();
                                 this.CheckChildsIncell(idCellBottom);
@@ -459,25 +465,30 @@ export default class Main extends cc.Component {
         }
     }
     public CheckChildsIncell(tagCell: number) {
-        console.log("kiem tra thang nay");
-        for (let i = 0; i < this.Cells.length; i++) {
-            if (this.Cells[i].node.children.length === 0) {
-                console.log("ep cho thằng này một cái collider vào mồm");
-                this.Cells[i].RemoveCards_cell();
-                let colliderNode = cc.instantiate(this.CardPrefab);
-                if (colliderNode) {
-                    colliderNode.position = this.Cells[i].node.position;
-                    this.Cells[i].node.addChild(colliderNode);
-                    colliderNode.setPosition(0, -30);
-                    colliderNode.addComponent(CardColliders);
-                    colliderNode.name = "ColliderNode";
-                    // colliderNode.addComponent(BaseCard);
-                    colliderNode.getComponent(BaseCard).tag_group = this.Cells[i].Tag;
-                    let childs = this.Cells[i].node.children;
-                    console.log(this.Cells[i].node.children);
+        cc.tween(this.node)
+            .delay(0.1)
+            .call(() => {
+                console.log("kiem tra thang nay");
+                for (let i = 0; i < this.Cells.length; i++) {
+                    if (this.Cells[i].node.children.length === 0) {
+                        console.log("ep cho thằng này một cái collider vào mồm");
+                        this.Cells[i].RemoveCards_cell();
+                        let colliderNode = cc.instantiate(this.CardPrefab);
+                        if (colliderNode) {
+                            colliderNode.position = this.Cells[i].node.position;
+                            this.Cells[i].node.addChild(colliderNode);
+                            colliderNode.setPosition(0, -30);
+                            colliderNode.addComponent(CardColliders);
+                            colliderNode.name = "ColliderNode";
+                            // colliderNode.addComponent(BaseCard);
+                            colliderNode.getComponent(BaseCard).tag_group = this.Cells[i].Tag;
+                            let childs = this.Cells[i].node.children;
+                            console.log(this.Cells[i].node.children);
+                        }
+                    }
                 }
-            }
-        }
+            })
+            .start();
     }
     public DeleteColliderNodeInCell(tagCell: number) {
         console.log("delete collider node for cell");
@@ -563,10 +574,7 @@ export default class Main extends cc.Component {
             cardsComparison = this.Cells[i].CheckConsecutiveCards();
             if (cardsComparison) {
                 console.log("tim duoc em để anh mang đi bán rồi ", cardsComparison);
-                for (let j = 0; j < cardsComparison.length; j++) {
-                    cardsComparison[j].Select(true);
-                }
-                this.CheckCardInAllCell(cardsComparison[0]);
+                this.CheckCardInAllCell(cardsComparison);
             }
         }
         this.CheckCardWithCard();
@@ -575,7 +583,8 @@ export default class Main extends cc.Component {
         this.CheckFreeCellWithCells();
         this.CheckFreeCellWithAceCell();
     }
-    CheckCardInAllCell(cardCheck: BaseCard) {
+    CheckCardInAllCell(cardsCheck: BaseCard[]) {
+        let cardCheck = cardsCheck[0];
         for (let i = 0; i < this.Cells.length; i++) {
             let CardTopCells = this.Cells[i].GetTopCell();
             if (this.Cells[i].Tag != cardCheck.tag_group && CardTopCells.number_index - 1 == cardCheck.number_index) {
@@ -585,6 +594,18 @@ export default class Main extends cc.Component {
                         (cardCheck.type == CardTypeStatus.CLUB || cardCheck.type == CardTypeStatus.SPADE))) {
                     console.log("may gan vao em nay");
                     CardTopCells.Select(true);
+                    for (let j = 0; j < cardsCheck.length; j++) {
+                        cardsCheck[j].Select(true);
+                    }
+                    cc.tween(this.node)
+                        .delay(1)
+                        .call(() => {
+                            CardTopCells.Select(false);
+                            for (let j = 0; j < cardsCheck.length; j++) {
+                                cardsCheck[j].Select(false);
+                            }
+                        })
+                        .start();
                 }
             } else {
                 console.log("khong co dau em oi");
@@ -594,40 +615,215 @@ export default class Main extends cc.Component {
     CheckCardWithCard() {
         for (let i = 0; i < this.Cells.length - 1; i++) {
             let cardTopInCell_A = this.Cells[i].GetTopCell();
-            for (let j = 1; j < this.Cells.length; j++) {
-                let cardTopInCell_B = this.Cells[j].GetTopCell();
-                if (cardTopInCell_A.tag_group != cardTopInCell_B.tag_group &&
-                    (cardTopInCell_A.number_index - 1 == cardTopInCell_B.number_index ||
-                        cardTopInCell_A.number_index == cardTopInCell_B.number_index - 1)) {
-                    if (((cardTopInCell_A.type == CardTypeStatus.CLUB || cardTopInCell_A.type == CardTypeStatus.SPADE) &&
-                        (cardTopInCell_B.type == CardTypeStatus.DIAMOND || cardTopInCell_B.type == CardTypeStatus.HEART)) ||
-                        ((cardTopInCell_A.type == CardTypeStatus.DIAMOND || cardTopInCell_A.type == CardTypeStatus.HEART) &&
-                            (cardTopInCell_B.type == CardTypeStatus.CLUB || cardTopInCell_B.type == CardTypeStatus.SPADE))) {
-                        console.log("may gan vao em nay");
-                        cardTopInCell_A.Select(true);
-                        cardTopInCell_B.Select(true);
-                    }
+            this.CardWithCard(cardTopInCell_A);
+        }
+    }
+    CardWithCard(Card_A: BaseCard) {
+        for (let j = 1; j < this.Cells.length; j++) {
+            let cardTopInCell_B = this.Cells[j].GetTopCell();
+            if (Card_A.tag_group != cardTopInCell_B.tag_group &&
+                (Card_A.number_index - 1 == cardTopInCell_B.number_index ||
+                    Card_A.number_index == cardTopInCell_B.number_index - 1)) {
+                if (((Card_A.type == CardTypeStatus.CLUB || Card_A.type == CardTypeStatus.SPADE) &&
+                    (cardTopInCell_B.type == CardTypeStatus.DIAMOND || cardTopInCell_B.type == CardTypeStatus.HEART)) ||
+                    ((Card_A.type == CardTypeStatus.DIAMOND || Card_A.type == CardTypeStatus.HEART) &&
+                        (cardTopInCell_B.type == CardTypeStatus.CLUB || cardTopInCell_B.type == CardTypeStatus.SPADE))) {
+                    console.log("may gan vao em nay");
+                    Card_A.Select(true);
+                    cardTopInCell_B.Select(true);
+                    cc.tween(this.node)
+                        .delay(1)
+                        .call(() => {
+                            Card_A.Select(false);
+                            cardTopInCell_B.Select(false);
+                        })
+                        .start();
+                }
+            } else {
+                console.log("khong co dau em oi");
+            }
+        }
+    }
+    //cell with freeCell
+    CheckCellWithFreeCells() {
+        for (let i = 0; i < this.Cells.length; i++) {
+            let cardTopCells = this.Cells[i].GetTopCell();
+            console.log("top cells", cardTopCells)
+            for (let j = 0; j < this.FreeCell.length; j++) {
+                if (this.FreeCell[j].node.children.length == 0) {
+                    cardTopCells.Select(true);
+                    this.InstantiateGlowCell(this.FreeCell[j].Tag);
+                    cc.tween(this.node)
+                        .delay(1)
+                        .call(() => {
+                            cardTopCells.Select(false);
+                            this.RemoveGlowCell(this.FreeCell[j].Tag)
+                        })
+                        .start();
                 } else {
                     console.log("khong co dau em oi");
                 }
             }
         }
     }
-    //cell with freeCell
-    CheckCellWithFreeCells() {
-
-    }
     //cell with aceCell
     CheckCellWithAceCells() {
-
+        this.InitTypeAceCell();
+        for (let i = 0; i < this.Cells.length; i++) {
+            let cardTopCells = this.Cells[i].GetTopCell();
+            this.CheckCardAceCell(cardTopCells);
+        }
     }
     //free cell with cell
     CheckFreeCellWithCells() {
-
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            let chidls = this.FreeCell[i].node.children;
+            if (this.FreeCell[i].node.children.length != 0 && chidls[0].name != "ColliderNode") {
+                let Card_A = chidls[0].getComponent(BaseCard);
+                console.log("cardInFreecell", Card_A);
+                for (let j = 1; j < this.Cells.length; j++) {
+                    let cardTopInCell_B = this.Cells[j].GetTopCell();
+                    if (Card_A.tag_group != cardTopInCell_B.tag_group &&
+                        (Card_A.number_index == cardTopInCell_B.number_index - 1)) {
+                        if (((Card_A.type == CardTypeStatus.CLUB || Card_A.type == CardTypeStatus.SPADE) &&
+                            (cardTopInCell_B.type == CardTypeStatus.DIAMOND || cardTopInCell_B.type == CardTypeStatus.HEART)) ||
+                            ((Card_A.type == CardTypeStatus.DIAMOND || Card_A.type == CardTypeStatus.HEART) &&
+                                (cardTopInCell_B.type == CardTypeStatus.CLUB || cardTopInCell_B.type == CardTypeStatus.SPADE))) {
+                            console.log("may gan vao em nay");
+                            Card_A.Select(true);
+                            cardTopInCell_B.Select(true);
+                            cc.tween(this.node)
+                                .delay(1)
+                                .call(() => {
+                                    Card_A.Select(false);
+                                    cardTopInCell_B.Select(false);
+                                })
+                                .start();
+                        }
+                    } else {
+                        console.log("khong co dau em oi");
+                    }
+                }
+            }
+        }
     }
     //free cell with aceCell
     CheckFreeCellWithAceCell() {
-
+        this.InitTypeAceCell();
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            let cardTopCells = this.FreeCell[i].GetTopCell();
+            this.CheckCardAceCell(cardTopCells);
+        }
+    }
+    CheckCardAceCell(cardTopCells: BaseCard) {
+        for (let j = 0; j < this.AceCell.length; j++) {
+            if (this.AceCell[j].getComponent(AceCell).cards.length == 0) {
+                if (cardTopCells.type == this.AceCell[j].getComponent(AceCell).CardTypeGroup &&
+                    cardTopCells.number_index == 1) {
+                    cardTopCells.Select(true);
+                    this.InstantiateGlowCell(this.AceCell[j].getComponent(AceCell).Tag);
+                    cc.tween(this.node)
+                        .delay(1)
+                        .call(() => {
+                            cardTopCells.Select(false);
+                            this.RemoveGlowCell(this.AceCell[j].getComponent(AceCell).Tag)
+                        })
+                        .start();
+                }
+            }
+            else if (this.AceCell[j].getComponent(AceCell).cards.length >= 1) {
+                console.log("acecell tag + card length", this.AceCell[j].getComponent(AceCell).Tag, this.AceCell[j].getComponent(AceCell).cards.length)
+                console.log(this.AceCell[j].getComponent(AceCell).GetTopCell().number_index + 1, cardTopCells.number_index);
+                console.log(this.AceCell[j].getComponent(AceCell).CardTypeGroup, cardTopCells.type);
+                if (this.AceCell[j].getComponent(AceCell).CardTypeGroup == cardTopCells.type &&
+                    this.AceCell[j].getComponent(AceCell).GetTopCell().number_index + 1 == cardTopCells.number_index) {
+                    console.log("hind ok");
+                    cardTopCells.Select(true);
+                    this.AceCell[j].getComponent(AceCell).Select(true);
+                    cc.tween(this.node)
+                        .delay(1)
+                        .call(() => {
+                            cardTopCells.Select(false);
+                            this.AceCell[j].getComponent(AceCell).Select(false);
+                        })
+                        .start();
+                }
+            }
+        }
+    }
+    //instantiateSGlowCell
+    public InstantiateGlowCell(tagCell: number) {
+        console.log("cho thang nay sang nhat dem nay");
+        if (tagCell >= 10 && tagCell <= 13) {
+            for (let i = 0; i < this.FreeCell.length; i++) {
+                if (this.FreeCell[i].node.children.length === 0) {
+                    console.log("ep cho thằng này một cái glow vào mồm");
+                    this.FreeCell[i].RemoveCards_cell();
+                    let GlowNode = cc.instantiate(this.CardPrefab);
+                    if (GlowNode) {
+                        GlowNode.position = this.Cells[i].node.position;
+                        this.FreeCell[i].node.addChild(GlowNode);
+                        GlowNode.setPosition(0, 0);
+                        GlowNode.name = "ColliderNode";
+                    }
+                }
+            }
+        }
+        else if (tagCell >= 14 && tagCell <= 17) {
+            for (let i = 0; i < this.AceCell.length; i++) {
+                if (this.AceCell[i].children.length === 0 && i == tagCell - 14) {
+                    console.log("ep cho thằng này một cái glow vào mồm");
+                    this.AceCell[i].getComponent(AceCell).RemoveCards_cell();
+                    let GlowNode = cc.instantiate(this.CardPrefab);
+                    if (GlowNode) {
+                        GlowNode.position = this.Cells[i].node.position;
+                        this.AceCell[i].addChild(GlowNode);
+                        GlowNode.setPosition(0, 0);
+                        GlowNode.name = "ColliderNode";
+                    }
+                }
+            }
+        }
+    }
+    //removeGlowCell
+    public RemoveGlowCell(tagCell: number) {
+        console.log("cho thang nay tat luon dem nay");
+        if (tagCell >= 10 && tagCell <= 13) {
+            for (let i = 0; i < this.FreeCell.length; i++) {
+                if (this.FreeCell[i].node.children.length != 0) {
+                    let chidls = this.FreeCell[i].node.children;
+                    for (let j = 0; j < chidls.length; j++) {
+                        if (chidls[j].name == "ColliderNode") {
+                            this.FreeCell[i].node.removeChild(chidls[j]);
+                        }
+                    }
+                }
+            }
+        }
+        else if (tagCell >= 14 && tagCell <= 17) {
+            for (let i = 0; i < this.AceCell.length; i++) {
+                if (this.AceCell[i].children.length != 0) {
+                    let chidls = this.AceCell[i].children;
+                    for (let j = 0; j < chidls.length; j++) {
+                        if (chidls[j].name == "ColliderNode") {
+                            this.AceCell[i].removeChild(chidls[j]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //***************************************************MENU GAME ************************************************** */
+    public ToParentNode_showMenuGame() {
+        this.node.parent.getComponent(GameControler).ShowMenuGame();
+    }
+    public SetNewGame() {
+        this.RemoveAllChildsInCells();
+        this.TopManager.getComponent(TopGroupManager).InitTopInfo();
+        this.StartGame();
+    }
+    public SetOptions() {
+        this
     }
 }
 

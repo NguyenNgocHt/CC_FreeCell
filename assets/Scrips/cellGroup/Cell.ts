@@ -259,14 +259,11 @@ export default class Cell extends cc.Component {
         }
     }
     public GetCardIndex(index: number, mouse_onclickStatus: MOUSE_ONCLICK_LEFT_RIGHT_STATUS) {
-        if (!this.cards_index) {
-            this.cards_index = [];
-        }
-        this.cards_index.push(index);
         this.countPushIndexCard += 1;
         if (this.countPushIndexCard == 1) {
             this.IndexCard_onclick = index;
             this.CheckIndexMax(mouse_onclickStatus);
+            console.log("GetCardIndex ok")
             this.Emit_onClickToMain();
         }
         cc.tween(this.node)
@@ -281,6 +278,7 @@ export default class Cell extends cc.Component {
             this.SetIsMovingCard(this.IndexCard_onclick);
         }
         else if (mouse_onclickStatus == MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT) {
+            console.log("check index max");
             this.SetMovingCardToCellTop(this.IndexCard_onclick);
         }
     }
@@ -362,7 +360,6 @@ export default class Cell extends cc.Component {
         this.cards = [];
         this.carts_intermediaryOutput = [];
         this.Cards_intermediaryInput = [];
-        this.cards_index = [];
         this.cards_inputCardEnterCellOld = [];
     }
     public CheckConsecutiveCards(): BaseCard[] {
@@ -377,8 +374,10 @@ export default class Cell extends cc.Component {
     }
     public GetTopCell(): BaseCard {
         let childs = this.node.children;
-        let chidlsLength = childs.length;
-        return childs[chidlsLength - 1].getComponent(BaseCard);
+        if (childs) {
+            let chidlsLength = childs.length;
+            return childs[chidlsLength - 1].getComponent(BaseCard);
+        }
     }
     //emit to main
     Emit_data_toMain() {
@@ -388,7 +387,9 @@ export default class Cell extends cc.Component {
     //gui du lieu cell va id card cho main de check xem cell top co chua duoc card bottom cell khong
     SetMovingCardToCellTop(indexMax: number) {
         let childs = this.node.children;
+        console.log(indexMax, childs.length - 1);
         if (indexMax == childs.length - 1) {
+            console.log("emit to main ok")
             this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.id, indexMax);
         } else {
             this.ResetCardsIndex();
@@ -398,6 +399,7 @@ export default class Cell extends cc.Component {
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, id_cell_input);
     }
     private Emit_onClickToMain() {
+        console.log("emit to main");
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
     }
     public EmitToMain_removeCardFreecell(tagCell: number) {

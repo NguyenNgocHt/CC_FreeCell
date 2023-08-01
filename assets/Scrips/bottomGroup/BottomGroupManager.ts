@@ -30,6 +30,7 @@ export default class NewClass extends cc.Component {
     SetPopupGame() {
         this.MainGame = this.node.parent.parent.getComponent(Main);
         console.log("onclick set Popup game");
+        this.MainGame.ToParentNode_showMenuGame();
     }
     SetChallenge() {
         this.MainGame = this.node.parent.parent.getComponent(Main);

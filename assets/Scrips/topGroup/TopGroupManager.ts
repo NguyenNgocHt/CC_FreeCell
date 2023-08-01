@@ -47,6 +47,8 @@ export default class TopGroupManager extends cc.Component {
         this.totalSecond = 0;
         this.countMove = 0;
         this.UpdateGameGata();
+        this.ShowScore(this.number_score);
+        this.ShowMove(this.countMove);
     }
     initTopManager() {
         let pointNode = this.Score.getChildByName("point");
