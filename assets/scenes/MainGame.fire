@@ -455,7 +455,7 @@
       "__id__": 11
     },
     "_name": "Game",
-    "_active": true,
+    "_active": false,
     "_trs": {
       "__type__": "TypedArray",
       "ctor": "Float64Array",

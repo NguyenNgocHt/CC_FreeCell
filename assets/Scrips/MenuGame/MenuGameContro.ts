@@ -1,11 +1,16 @@
+import { GAME_LISTEN_TO_EVENTS } from "../audio/config";
 import { GameControler } from "../maingame/GameControler";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class MenuGameContro extends cc.Component {
-    // @property(cc.Node)
-    // PopupHelps: cc.Node = null;
+    @property(cc.Node)
+    PopupHelps: cc.Node = null;
+
+    protected start(): void {
+        this.PopupHelps.on(GAME_LISTEN_TO_EVENTS.DATA_CLOSE_HELP_POPUP, this.CloseNexPageNode, this);
+    }
     onClickBackground() {
         this.node.parent.getComponent(GameControler).CloseMenuGame();
     }
@@ -15,10 +20,10 @@ export default class MenuGameContro extends cc.Component {
     OnClickButton_replay() {
         this.node.parent.getComponent(GameControler).SetReplay();
     }
-    // OnClickButton_helps() {
-    //     this.PopupHelps.active = true;
-    // }
-    // public CloseNexPageNode() {
-    //     this.PopupHelps.active = false;
-    // }
+    OnClickButton_helps() {
+        this.PopupHelps.active = true;
+    }
+    public CloseNexPageNode() {
+        this.PopupHelps.active = false;
+    }
 }

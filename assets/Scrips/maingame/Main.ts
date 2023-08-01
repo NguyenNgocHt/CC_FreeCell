@@ -20,6 +20,7 @@ import CardColliders from "../CardGroup/CardColliders";
 import singleTon from "./Sigleton";
 import TopGroupManager from "../topGroup/TopGroupManager";
 import { GameControler } from "./GameControler";
+import PlayAudio from "../audio/PlayAuido";
 const { ccclass, property } = cc._decorator;
 export class CardLog {
     public card: BaseCard;
@@ -59,6 +60,7 @@ export default class Main extends cc.Component {
     private singleTon: singleTon = null;
     private GameDataStack: SaveData[] = [];
     private currentGameStateIndex: number = -1;
+    private audioPlay: PlayAudio = null;
     // LIFE-CYCLE CALLBACKS:
     //singleTon
     private static instance: Main | null = null;
@@ -77,7 +79,7 @@ export default class Main extends cc.Component {
         this.StartGame();
         // this.AddDataListener();
         this.EventRegister();
-
+        this.audioPlay = this.node.getComponent(PlayAudio);
     }
     public EventRegister() {
         for (let i = 0; i < this.Cells.length; i++) {
@@ -823,7 +825,11 @@ export default class Main extends cc.Component {
         this.StartGame();
     }
     public SetOptions() {
-        this
+        this.node.parent.getComponent(GameControler).SetOptions();
+    }
+    //************************************************PLAY AUDIO***************************************************/
+    public PlayMusic() {
+        this.audioPlay.PlayAudioMusic("background1");
     }
 }
 

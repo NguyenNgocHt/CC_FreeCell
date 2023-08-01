@@ -39,5 +39,6 @@ export default class NewClass extends cc.Component {
     SetOptions() {
         this.MainGame = this.node.parent.parent.getComponent(Main);
         console.log("onclick set options");
+        this.MainGame.SetOptions();
     }
 }

@@ -25,6 +25,6 @@ export class GameControler extends cc.Component {
         this.MenuGame.active = false;
     }
     public SetOptions() {
-
+        this.Options.active = true;
     }
 }
