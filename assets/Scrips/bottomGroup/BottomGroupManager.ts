@@ -1,9 +1,10 @@
+import PlayAudio from "../audio/PlayAuido";
 import Main from "../maingame/Main";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class NewClass extends cc.Component {
+export default class BottomGroupManager extends cc.Component {
     @property(cc.Button)
     Button_Undo: cc.Button = null;
     @property(cc.Button)
@@ -19,26 +20,25 @@ export default class NewClass extends cc.Component {
     }
     SetUndoGame() {
         this.MainGame = this.node.parent.parent.getComponent(Main);
-        console.log("onclick set undo game");
         this.MainGame.onUndoButtonClick();
     }
-    SetHindGame() {
+    public SetHindGame() {
+        PlayAudio.Instance.AudioEffect_hind();
         this.MainGame = this.node.parent.parent.getComponent(Main);
-        console.log("onclick set Hind game");
         this.MainGame.CheckHindCellWithCell();
     }
     SetPopupGame() {
         this.MainGame = this.node.parent.parent.getComponent(Main);
-        console.log("onclick set Popup game");
         this.MainGame.ToParentNode_showMenuGame();
     }
     SetChallenge() {
         this.MainGame = this.node.parent.parent.getComponent(Main);
-        console.log("onclick set Challenge game");
     }
     SetOptions() {
         this.MainGame = this.node.parent.parent.getComponent(Main);
-        console.log("onclick set options");
         this.MainGame.SetOptions();
+    }
+    OnClickButtonSound() {
+        PlayAudio.Instance.AudioEffect_touch();
     }
 }

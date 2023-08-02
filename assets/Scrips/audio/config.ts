@@ -19,6 +19,7 @@ export const GAME_LISTEN_TO_EVENTS = {
     DATA_DELETE_COLLIDER_CHILD_NODE: "data-delete-collider-child-node",
     DATA_UPDATE_COUNT_MOVE: "data-update-count-move",
     DATA_CLOSE_HELP_POPUP: "data-close-help-popup",
+    DATA_THEMES_NUMBER_SET: "data-themes-number-set",
 }
 export enum MOUSE_ONCLICK_LEFT_RIGHT_STATUS {
     NO_STATUS = 0,

@@ -1,3 +1,4 @@
+import PlayAudio from "../audio/PlayAuido";
 import { GAME_LISTEN_TO_EVENTS } from "../audio/config";
 import { GameControler } from "../maingame/GameControler";
 
@@ -25,5 +26,8 @@ export default class MenuGameContro extends cc.Component {
     }
     public CloseNexPageNode() {
         this.PopupHelps.active = false;
+    }
+    OnClickSound() {
+        PlayAudio.Instance.AudioEffect_touch();
     }
 }

@@ -27,4 +27,16 @@ export class GameControler extends cc.Component {
     public SetOptions() {
         this.Options.active = true;
     }
+    public CloseOptions() {
+        this.Options.active = false;
+    }
+    public SetHindAutoStart() {
+        this.MainGame.getComponent(Main).HindAutoStart();
+    }
+    public SetHindAutoStop() {
+        this.MainGame.getComponent(Main).HindAutoStop()
+    }
+    public SetThemesToMainGame(themesIndex: number) {
+        this.MainGame.getComponent(Main).ThemesSetting(themesIndex);
+    }
 }

@@ -40,7 +40,6 @@ export default class Cell extends cc.Component {
         }
     }
     public Add(card: BaseCard) {
-        console.log("chi so index card và số cell", card.number_index, this.id);
         if (!this.cards) {
             this.cards = [];
         }
@@ -70,7 +69,12 @@ export default class Cell extends cc.Component {
         }
         this.node.addChild(card.node);
         card.Belong(this.node, this.Cards_intermediaryInput.length);
-        this.SetPositionAllChild_cardEntermediary();
+        cc.tween(this.node)
+            .delay(0.01)
+            .call(() => {
+                this.SetPositionAllChild_cardEntermediary();
+            })
+            .start();
         card.node.setPosition(newPositionCardInNodeParentNew);
     }
     public Add_InputCardsEnterCellOld(card: BaseCard) {
@@ -91,7 +95,6 @@ export default class Cell extends cc.Component {
     }
     SetPositionAllChild() {
         if (this.Tag == 1 || this.Tag == 2 || this.Tag == 3 || this.Tag == 4 || this.Tag == 5 || this.Tag == 6 || this.Tag == 7 || this.Tag == 8) {
-            console.log("set posiiton all chidls");
             let childs = this.node.children;
             for (let i = 0; i < childs.length; i++) {
                 childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = false;
@@ -102,13 +105,11 @@ export default class Cell extends cc.Component {
                 }
             }
         } else if (this.Tag == 10 || this.Tag == 11 || this.Tag == 12 || this.Tag == 13) {
-            console.log("set posiiton all chidls");
             let childs = this.node.children;
             for (let i = 0; i < childs.length; i++) {
                 childs[i].setPosition(0, 0);
             }
         } else if (this.Tag == 14 || this.Tag == 15 || this.Tag == 16 || this.Tag == 17) {
-            console.log("set posiiton all chidls");
             let childs = this.node.children;
             for (let i = 0; i < childs.length; i++) {
                 childs[i].setPosition(0, 0);
@@ -119,9 +120,7 @@ export default class Cell extends cc.Component {
     }
     SetPositionAllChild_cardEntermediary() {
         let childs = this.node.children;
-        console.log("childs.length", childs.length)
         for (let i = 0; i < childs.length; i++) {
-            console.log("base card ", childs[i].getComponent(BaseCard));
             childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = true;
             if (i == 0) {
                 childs[i].getComponent(CardMove).isMoving = true;
@@ -206,8 +205,6 @@ export default class Cell extends cc.Component {
         }
     }
     public CheckBaseCard(cardIndex: number): boolean {
-        console.log("cards trước khi tách cell", this.cards);
-        console.log('successInit_index != cardIndex');
         this.carts_intermediaryOutput = [];
         this.card_copyComparison = [];
         let childs = this.node.children;
@@ -215,7 +212,6 @@ export default class Cell extends cc.Component {
         let actualNumber = 0;
         for (let i = 0; i < childs.length; i++) {
             if (childs[i].getSiblingIndex() >= cardIndex) {
-                console.log("childs[i].getSiblingIndex() >= cardIndex");
                 if (i + 1 < childs.length) {
                     if (childs[i].getComponent(BaseCard).number_index == childs[i + 1].getComponent(BaseCard).number_index + 1) {
                         if (((childs[i].getComponent(BaseCard).type == CardTypeStatus.CLUB || childs[i].getComponent(BaseCard).type == CardTypeStatus.SPADE) &&
@@ -231,16 +227,12 @@ export default class Cell extends cc.Component {
                 else if (i == childs.length - 1 && actualNumber == standardNumber - 1) {
                     this.carts_intermediaryOutput.push(childs[i].getComponent(BaseCard));
                     this.card_copyComparison.push(childs[i].getComponent(BaseCard));
-                    console.log("carts_intermediary", this.carts_intermediaryOutput);
-                    console.log("card_copyComparison", this.card_copyComparison);
                     if (this.card_copyComparison.length >= 2) {
                         console.log("có thể chuyển");
-                        // this.Emit_data_toMain();
                         return true;
                     }
                 }
                 else {
-                    console.log("không thể chuyển");
                     return false;
                 }
             }
@@ -263,7 +255,6 @@ export default class Cell extends cc.Component {
         if (this.countPushIndexCard == 1) {
             this.IndexCard_onclick = index;
             this.CheckIndexMax(mouse_onclickStatus);
-            console.log("GetCardIndex ok")
             this.Emit_onClickToMain();
         }
         cc.tween(this.node)
@@ -278,7 +269,6 @@ export default class Cell extends cc.Component {
             this.SetIsMovingCard(this.IndexCard_onclick);
         }
         else if (mouse_onclickStatus == MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT) {
-            console.log("check index max");
             this.SetMovingCardToCellTop(this.IndexCard_onclick);
         }
     }
@@ -289,12 +279,16 @@ export default class Cell extends cc.Component {
             if (i == indexMax) {
                 if (indexMax == childs.length - 1) {
                     childs[i].getComponent(CardMove).isMoving = true;
-                    childs[i].getComponent(BaseCard).Select(true);
+                    cc.tween(this.node)
+                        .delay(0.01)
+                        .call(() => {
+                            childs[i].getComponent(BaseCard).Select(true);
+                        })
+                        .start();
                     this.node.parent.setSiblingIndex(9);
                     this.ResetCardsIndex();
                 } else {
                     if (this.CheckBaseCard(i)) {
-                        console.log("emit intermediry");
                         this.Emit_data_toMain();
                         this.ResetCardsIndex();
                     } else {
@@ -303,7 +297,6 @@ export default class Cell extends cc.Component {
                     }
                 }
             } else {
-                // console.log(childs[i].getComponent(BaseCard));
                 childs[i].getComponent(CardMove).isMoving = false;
                 this.ResetCardsIndex();
             }

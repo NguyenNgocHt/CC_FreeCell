@@ -3,6 +3,7 @@ import { GAME_LISTEN_TO_EVENTS, MOUSE_ONCLICK_LEFT_RIGHT_STATUS, MOUSE_STATUS } 
 import Cell from "../cellGroup/Cell";
 import { GameSave } from "../gameData/SaveData";
 import FreeCell from "../cellGroup/FreeCell";
+import PlayAudio from "../audio/PlayAuido";
 //card moving
 const { ccclass, property } = cc._decorator;
 @ccclass
@@ -41,7 +42,7 @@ export default class CardMove extends cc.Component {
     }
     private onCardTouchStart(event: cc.Event.EventMouse) {
         if (event.getButton() === cc.Event.EventMouse.BUTTON_LEFT) {
-
+            PlayAudio.Instance.AudioEffect_touch();
             console.log("card info", this.node.getComponent(BaseCard));
             this.getOldIndex();
             this.OpenSetNewSblIndexCell();
@@ -61,6 +62,7 @@ export default class CardMove extends cc.Component {
                 .start();
         } else if (event.getButton() === cc.Event.EventMouse.BUTTON_RIGHT) {
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT;
+            PlayAudio.Instance.AudioEffect_touch();
             console.log("onClick chuột phải");
             this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus);
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.NO_STATUS;
@@ -105,6 +107,7 @@ export default class CardMove extends cc.Component {
                     .call(() => {
                         this.isMoving = false;
                         this.EmitOutputCell();
+                        PlayAudio.Instance.AudioEffect_swap();
                     })
                     .start();
             } else {
@@ -114,6 +117,7 @@ export default class CardMove extends cc.Component {
                         this.node.getComponent(BaseCard).Select(false);
                         this.isMoving = false;
                         this.SetOilIndexNode();
+                        PlayAudio.Instance.AudioEffect_swap();
                     })
                     .start();
             }
@@ -165,9 +169,5 @@ export default class CardMove extends cc.Component {
         }
     }
     protected update(dt: number): void {
-        // if (this.isLeaving && this.isMoving) {
-        //     const newPos = this.node.parent.convertToNodeSpaceAR(this.mousePos).add(this.offset);
-        //     this.node.setPosition(newPos);
-        // }
     }
 }

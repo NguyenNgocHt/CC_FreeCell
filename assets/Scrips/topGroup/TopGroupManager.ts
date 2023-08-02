@@ -21,6 +21,7 @@ export default class TopGroupManager extends cc.Component {
     private countMove: number = 0;
     private totalSecond: number = 0;
     private countMinusScore: number = 0;
+    private TimeUpdate: number = 0;
     //singleTon
     private static instance: TopGroupManager | null = null;
     public static get Instance(): TopGroupManager {
@@ -30,23 +31,26 @@ export default class TopGroupManager extends cc.Component {
         return this.instance;
     }
     onLoad() {
-    }
-    start() {
         this.initTopManager();
         this.InitTopInfo();
     }
+    start() {
+    }
     //  this.Game_Data.Init(this.number_score, this.totalSecond, this.countMove, this.countMove, this.countMove);
-    public initAllInfo(score: number, move: number) {
+    public initAllInfo(score: number, move: number, timeUpdate: number) {
         this.number_score = score;
         this.countMove = move;
+        this.TimeUpdate = timeUpdate;
         this.ShowScore(this.number_score);
         this.ShowMove(this.countMove);
+        this.SettimerStart(true);
     }
     InitTopInfo() {
         this.number_score = 0;
         this.totalSecond = 0;
         this.countMove = 0;
-        this.UpdateGameGata();
+        this.TimeUpdate = 0;
+        this.UpdateGameData();
         this.ShowScore(this.number_score);
         this.ShowMove(this.countMove);
     }
@@ -115,16 +119,21 @@ export default class TopGroupManager extends cc.Component {
     }
     ShowMove(countMove: number) {
         this.labelMove.string = countMove.toString();
-        this.UpdateGameGata();
+        cc.tween(this.node)
+            .delay(0.01)
+            .call(() => {
+                this.UpdateGameData();
+            })
+            .start();
     }
-    UpdateGameGata() {
+    UpdateGameData() {
         this.Game_Data.Init(this.number_score, this.totalSecond, this.countMove, this.countMove, this.countMove);
         console.log("Game_data", this.Game_Data);
     }
     protected update(dt: number): void {
         if (this.isTimerStart) {
             let currentTime = new Date().getTime() / 1000;
-            let elapsedTime = currentTime - this.startTime;
+            let elapsedTime = currentTime - this.startTime + this.TimeUpdate;
             let showTimerString = this.ParseTime(elapsedTime);
             this.ShowCountTimer(showTimerString);
             this.CheckMinusScore();
