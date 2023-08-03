@@ -27,6 +27,7 @@ export default class Cell extends cc.Component {
     private countCheckIndexMax: number = 0;
     private countPushIndexCard: number = 0;
     private IndexCard_onclick: number = 0;
+    private IndexCell_origin: number = 0;
     start() {
         this.successInit_index = 0;
         this.cards = [];
@@ -228,7 +229,6 @@ export default class Cell extends cc.Component {
                     this.carts_intermediaryOutput.push(childs[i].getComponent(BaseCard));
                     this.card_copyComparison.push(childs[i].getComponent(BaseCard));
                     if (this.card_copyComparison.length >= 2) {
-                        console.log("có thể chuyển");
                         return true;
                     }
                 }
@@ -285,6 +285,7 @@ export default class Cell extends cc.Component {
                             childs[i].getComponent(BaseCard).Select(true);
                         })
                         .start();
+                    this.IndexCell_origin = this.node.parent.getSiblingIndex();
                     this.node.parent.setSiblingIndex(9);
                     this.ResetCardsIndex();
                 } else {
@@ -301,6 +302,9 @@ export default class Cell extends cc.Component {
                 this.ResetCardsIndex();
             }
         }
+    }
+    public SetOriginCellIndex() {
+        this.node.parent.setSiblingIndex(this.IndexCell_origin);
     }
     public ResetCardsIndex() {
         cc.tween(this.node)
@@ -360,7 +364,6 @@ export default class Cell extends cc.Component {
         this.card_copyComparison = [];
         for (let i = 0; i < chidls.length; i++) {
             if (this.CheckBaseCard(i)) {
-                console.log("chuyển đi em ơi");
                 return this.card_copyComparison;
             }
         }
@@ -369,7 +372,9 @@ export default class Cell extends cc.Component {
         let childs = this.node.children;
         if (childs) {
             let chidlsLength = childs.length;
-            return childs[chidlsLength - 1].getComponent(BaseCard);
+            if (chidlsLength > 0) {
+                return childs[chidlsLength - 1].getComponent(BaseCard);
+            }
         }
     }
     //emit to main
@@ -380,9 +385,7 @@ export default class Cell extends cc.Component {
     //gui du lieu cell va id card cho main de check xem cell top co chua duoc card bottom cell khong
     SetMovingCardToCellTop(indexMax: number) {
         let childs = this.node.children;
-        console.log(indexMax, childs.length - 1);
         if (indexMax == childs.length - 1) {
-            console.log("emit to main ok")
             this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.id, indexMax);
         } else {
             this.ResetCardsIndex();
@@ -392,7 +395,6 @@ export default class Cell extends cc.Component {
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, id_cell_input);
     }
     private Emit_onClickToMain() {
-        console.log("emit to main");
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
     }
     public EmitToMain_removeCardFreecell(tagCell: number) {
@@ -404,10 +406,12 @@ export default class Cell extends cc.Component {
     }
     //xoa collider tam cua cell
     public EmitDeleteColliderInCell(TagCell: number) {
-        console.log("emit delete collider Node in cell rong");
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_DELETE_COLLIDER_CHILD_NODE, TagCell);
     }
     public EmitUpdateCountMove() {
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE);
+    }
+    public EmitSetIndexCellToorigin(tagCell: number) {
+        this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_SETINDEX_CELL_TO_ORIGIN, tagCell);
     }
 }

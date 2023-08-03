@@ -40,13 +40,11 @@ export default class CardColliders extends cc.Component {
                                     this.node.parent.parent.getComponent(Cell).EmitCheckChildsInCell(this._baseCard_self.tag_group);
                                     this.node.parent.parent.getComponent(Cell).SetPositionAllChild();
                                     this.node.parent.parent.getComponent(Cell).EmitUpdateCountMove();
+                                    this.node.parent.parent.getComponent(Cell).EmitSetIndexCellToorigin(this._baseCard_self.tag_group);
                                 }
                                 else if (this._baseCard_self.tag_group == 10 || this._baseCard_self.tag_group == 11 ||
                                     this._baseCard_self.tag_group == 12 || this._baseCard_self.tag_group == 13) {
                                     PlayAudio.Instance.AudioEffect_swap();
-                                    console.log('this._baseCard_self.tag_group', this._baseCard_self.tag_group);
-                                    console.log("this.node", this.node.parent.getComponent(BaseCard));
-                                    // TopGroupManager.Instance.ShowCountMove(1);
                                     self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
                                     other.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
                                     self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
@@ -64,6 +62,7 @@ export default class CardColliders extends cc.Component {
                                     this.node.parent.parent.getComponent(Cell).EmitCheckChildsInCell(this._baseCard_self.tag_group);
                                     this.node.parent.parent.getComponent(Cell).SetPositionAllChild();
                                     this.node.parent.parent.getComponent(Cell).EmitUpdateCountMove();
+                                    this.node.parent.parent.getComponent(Cell).EmitSetIndexCellToorigin(this._baseCard_self.tag_group);
                                 }
                             }
                         }
@@ -76,8 +75,6 @@ export default class CardColliders extends cc.Component {
                             PlayAudio.Instance.AudioEffect_swap();
                             self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
                             other.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
-                            // TopGroupManager.Instance.ShowCountMove(1);
-                            console.log("nhap cell rỗng");
                             self.node.parent.parent.getComponent(Cell).SetOutputCell(other.node.parent.parent.getComponent(Cell).id)
                             this.node.parent.parent.getComponent(Cell).EmitCheckChildsInCell(this._baseCard_self.tag_group);
                             this.node.parent.parent.getComponent(Cell).EmitDeleteColliderInCell(this._baseCard_other.tag_group);
@@ -87,9 +84,6 @@ export default class CardColliders extends cc.Component {
                         else if (this._baseCard_self.tag_group == 10 || this._baseCard_self.tag_group == 11 ||
                             this._baseCard_self.tag_group == 12 || this._baseCard_self.tag_group == 13) {
                             PlayAudio.Instance.AudioEffect_swap();
-                            // TopGroupManager.Instance.ShowCountMove(1);
-                            console.log('this._baseCard_self.tag_group', this._baseCard_self.tag_group);
-                            console.log("this.node", this.node.parent.getComponent(BaseCard));
                             self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
                             other.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
                             self.node.parent.getComponent(BaseCard).SetIsInputCell(true);
@@ -110,6 +104,7 @@ export default class CardColliders extends cc.Component {
                             this.node.parent.parent.getComponent(Cell).EmitDeleteColliderInCell(this._baseCard_other.tag_group);
                             this.node.parent.parent.getComponent(Cell).SetPositionAllChild();
                             this.node.parent.parent.getComponent(Cell).EmitUpdateCountMove();
+                            this.node.parent.parent.getComponent(Cell).EmitSetIndexCellToorigin(this._baseCard_self.tag_group);
                         }
                     }
                 }

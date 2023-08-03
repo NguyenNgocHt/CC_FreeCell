@@ -20,9 +20,26 @@ export const GAME_LISTEN_TO_EVENTS = {
     DATA_UPDATE_COUNT_MOVE: "data-update-count-move",
     DATA_CLOSE_HELP_POPUP: "data-close-help-popup",
     DATA_THEMES_NUMBER_SET: "data-themes-number-set",
+    DATA_SETINDEX_CELL_TO_ORIGIN: "data-setIndex-cell-to-origin",
 }
 export enum MOUSE_ONCLICK_LEFT_RIGHT_STATUS {
     NO_STATUS = 0,
     MOUSE_RIGHT = 1,
     MOUSE_LEFT = 2,
+}
+export enum CHECK_GAME_STATUS {
+    NO_STATUS = 0,
+    CHECK_HIND = 1,
+    CHECK_LOSE = 2,
+};
+export enum CHECK_CELL_STATUS {
+    NO_STATUS = 0,
+    CHECK_CELL_WITH_FREECELL = 1,
+    CHECK_CELL_WITH_ACECELL = 2,
+    CHECK_FREECELL_WITH_ACECELL = 3,
+}
+export enum GAMEPLAY_STATUS {
+    NO_STATUS = 0,
+    LOADING_GAME = 1,
+    NEW_GAME = 2,
 }

@@ -7,7 +7,6 @@ const { ccclass, property } = cc._decorator;
 @ccclass
 export default class ConClickThemesContro extends cc.Component {
     OnClickIsThemes() {
-        console.log("onclick themes swap");
         let themesNumber = parseInt(this.node.name, 10);
         this.node.parent.parent.parent.getComponent(ThemesContro).EmitToOptions(themesNumber);
     }

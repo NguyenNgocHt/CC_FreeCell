@@ -23,7 +23,6 @@ export default class PlayAudio extends cc.Component {
     }
     getAudioClip() {
         let audioClip = AudioLoader.getAudioClip("background");
-        console.log(audioClip);
     }
     public playAudioOneShot(audioFileName: string) {
         const audioClip = AudioLoader.getAudioClip(audioFileName);

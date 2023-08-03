@@ -43,12 +43,10 @@ export default class CardMove extends cc.Component {
     private onCardTouchStart(event: cc.Event.EventMouse) {
         if (event.getButton() === cc.Event.EventMouse.BUTTON_LEFT) {
             PlayAudio.Instance.AudioEffect_touch();
-            console.log("card info", this.node.getComponent(BaseCard));
             this.getOldIndex();
             this.OpenSetNewSblIndexCell();
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_LEFT;
             this.originPosition = this.node.position;
-            console.log("emit to cell");
             this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus);
             let CellNode = this.node.parent.getComponent(Cell);
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.NO_STATUS;
@@ -63,7 +61,6 @@ export default class CardMove extends cc.Component {
         } else if (event.getButton() === cc.Event.EventMouse.BUTTON_RIGHT) {
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT;
             PlayAudio.Instance.AudioEffect_touch();
-            console.log("onClick chuột phải");
             this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus);
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.NO_STATUS;
         }
@@ -72,7 +69,6 @@ export default class CardMove extends cc.Component {
         if (this.isMoving) {
             this.mousePos = new cc.Vec2(event.getLocationX(), event.getLocationY());
             if (this.node.getComponent(BaseCard).tag_group == 9) {
-                console.log("cell moving");
                 const delta = event.getDelta();
                 this.node.parent.x += delta.x;
                 this.node.parent.y += delta.y;
@@ -86,7 +82,6 @@ export default class CardMove extends cc.Component {
     }
     private onCardTouchEnd(event: cc.Event.EventTouch) {
         if (this.isMoving) {
-            console.log("ontouch END");
             this.node.zIndex = 0;
             this.isLeaving = false;
             this.Mouse_status = MOUSE_STATUS.MOUSE_UP;

@@ -78,31 +78,25 @@ export class GameSave {
     }
     public SaveGame() {
         this.saveData = Main.Instance.SaveGame();
-        console.log(this.saveData);
         let data = JSON.stringify(this.saveData, null, 2);
         cc.sys.localStorage.setItem("GamePlayData", data);
     }
     public LoadGame(): SaveData {
-        console.log("save data", this.saveData);
         let data = localStorage.getItem("GamePlayData");
-        console.log("data", data);
         if (data) {
             let gamedata = JSON.parse(data);
-            console.log("gamedata", gamedata);
             return gamedata;
         }
         return null;
     }
     handleVisibilityChange() {
         if (document.hidden) {
-            console.log("save data");
             this.SaveGame();
-            console.log("save data", this.saveData);
         }
     }
     handleBeforeUnload() {
-        console.log("save data");
+
         this.SaveGame();
-        console.log("save data", this.saveData);
+
     }
 }

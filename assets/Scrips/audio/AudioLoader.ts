@@ -18,10 +18,8 @@ export default class AudioLoader extends cc.Component {
                 return;
             }
             for (const clip of clips) {
-                console.log("tai thanh công");
                 const audioFileName = cc.path.basename(clip.name);
                 AudioLoader.loadedAudioClips[audioFileName] = clip;
-                console.log(clip);
             }
 
             callback();

@@ -24,7 +24,5 @@ export default class singleTon extends cc.Component {
         return this.parentNode;
     }
     public callbackFromChild() {
-        console.log("Cháu gửi yêu cầu cho ông.");
-        // Thực hiện xử lý của ông tại đây
     }
 }

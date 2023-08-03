@@ -1,9 +1,14 @@
+import WinGameContro from "../WinGame/WinGameContro";
 import Main from "./Main";
 
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export class GameControler extends cc.Component {
+    @property(cc.Node)
+    WinGame: cc.Node = null;
+    @property(cc.Node)
+    LoseGame: cc.Node = null;
     @property(cc.Node)
     MainGame: cc.Node = null;
     @property(cc.Node)
@@ -38,5 +43,19 @@ export class GameControler extends cc.Component {
     }
     public SetThemesToMainGame(themesIndex: number) {
         this.MainGame.getComponent(Main).ThemesSetting(themesIndex);
+    }
+    public OnWinGame(movePoint: number, timePoint: number, scorePoint: number, RankPoint: number, topPoint: number) {
+        this.WinGame.active = true;
+        this.WinGame.getComponent(WinGameContro).ShowAllPointGame(movePoint, timePoint, scorePoint, RankPoint, topPoint);
+
+    }
+    public OnLoseGame() {
+        this.LoseGame.active = true;
+    }
+    public OffWinGame() {
+        this.WinGame.active = false;
+    }
+    public OffLosegame() {
+        this.LoseGame.active = false;
     }
 }

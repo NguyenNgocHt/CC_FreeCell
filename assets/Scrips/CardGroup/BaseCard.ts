@@ -93,7 +93,6 @@ export class BaseCard extends cc.Component {
         if (this.node.getComponent(CardMove)) {
             this.node.parent.parent.setSiblingIndex(this.originIndex);
             this.node.removeComponent(CardMove);
-            console.log("clearn card move")
         }
     }
     private SetTagCollder() {
@@ -122,9 +121,7 @@ export class BaseCard extends cc.Component {
         }
     }
     public SetIsInputCell(isInput: boolean) {
-        console.log("set is input cell", isInput);
         if (this.node.getComponent(CardMove)) {
-            console.log("set is input cell", isInput);
             this.node.getComponent(CardMove).isInputCell = isInput;
             this.node.getComponent(CardMove).CardMovingOrigin();
         }

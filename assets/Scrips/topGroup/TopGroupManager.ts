@@ -22,6 +22,7 @@ export default class TopGroupManager extends cc.Component {
     private totalSecond: number = 0;
     private countMinusScore: number = 0;
     private TimeUpdate: number = 0;
+    public isUpdateGameData: boolean = false;
     //singleTon
     private static instance: TopGroupManager | null = null;
     public static get Instance(): TopGroupManager {
@@ -128,9 +129,11 @@ export default class TopGroupManager extends cc.Component {
     }
     UpdateGameData() {
         this.Game_Data.Init(this.number_score, this.totalSecond, this.countMove, this.countMove, this.countMove);
-        console.log("Game_data", this.Game_Data);
     }
     protected update(dt: number): void {
+        if (this.isUpdateGameData) {
+            this.UpdateGameData();
+        }
         if (this.isTimerStart) {
             let currentTime = new Date().getTime() / 1000;
             let elapsedTime = currentTime - this.startTime + this.TimeUpdate;

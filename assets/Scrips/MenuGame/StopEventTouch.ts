@@ -25,7 +25,6 @@ export default class NewClass extends cc.Component {
         this.node.off(cc.Node.EventType.MOUSE_LEAVE);
     }
     onTouchStart(event: cc.Event.EventMouse) {
-        console.log("onclick bg");
         event.stopPropagationImmediate();
     }
     onTouchMove() {

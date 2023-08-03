@@ -23,7 +23,6 @@ export default class CellMove extends cc.Component {
         this.RegisterEvent();
     }
     public RegisterEvent() {
-        console.log("START ON");
         this.node.on(cc.Node.EventType.MOUSE_DOWN, this.onCardTouchStart, this);
         this.node.on(cc.Node.EventType.MOUSE_MOVE, this.onCardTouchMove, this);
         this.node.on(cc.Node.EventType.MOUSE_UP, this.onCardTouchEnd, this);
@@ -50,25 +49,6 @@ export default class CellMove extends cc.Component {
         }
     }
     private onCardTouchEnd(event: cc.Event.EventTouch) {
-        // cc.tween(this.node)
-        //     .to(0.1, { position: new cc.Vec3(this.originPosition) })
-        //     .call(() => {
-        //         this.isMoving = false;
-        //         this.node.getComponent(BaseCard).ClearCardMove();
-        //         // this.node.parent.getComponent(Cell).SetPositionAllChild();
-        //     })
-        //     .start();
-        //     cc.tween(this.node)
-        //         .to(0.1, { position: new cc.Vec3(this.originPosition) })
-        //         .call(() => {
-        //             this.isMoving = false;
-        //             this.node.getComponent(BaseCard).ClearCardMove();
-        //         })
-        //         .start();
-        // } else {
-        //     this.isMoving = false;
-        //     this.node.getComponent(BaseCard).ClearCardMove();
-        // }
     }
     public CardMovingOrigin() {
         if (!this.isInputCell) {
