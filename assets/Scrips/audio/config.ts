@@ -43,3 +43,8 @@ export enum GAMEPLAY_STATUS {
     LOADING_GAME = 1,
     NEW_GAME = 2,
 }
+export enum TOUCH_STATUS {
+    NO_STATUS = 0,
+    TOUCH = 1,
+    DOUBLE_TOUCH = 2,
+}

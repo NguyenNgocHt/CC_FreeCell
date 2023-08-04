@@ -13,7 +13,7 @@ const { ccclass, property } = cc._decorator;
 export default class Cell extends cc.Component {
     @property
     Tag: number = 0;
-    public cards: BaseCard[];
+    public cards: BaseCard[] = [];
     public Cards_intermediaryInput: BaseCard[];
     private carts_intermediaryOutput: BaseCard[];
     private cards_inputCardEnterCellOld: BaseCard[];
@@ -29,9 +29,10 @@ export default class Cell extends cc.Component {
     private IndexCard_onclick: number = 0;
     private IndexCell_origin: number = 0;
     start() {
-        this.successInit_index = 0;
         this.cards = [];
-        this.card_copyComparison = [];
+    }
+    public InitCell() {
+        this.cards = [];
     }
     protected onDisable(): void {
         let childs = this.node.children;
@@ -47,6 +48,7 @@ export default class Cell extends cc.Component {
         if (!this.cards.includes(card)) {
             this.cards.push(card);
         }
+        console.log(this.cards, this.Tag);
         if (card.node.parent) {
             card.node.removeFromParent();
         }
@@ -98,6 +100,7 @@ export default class Cell extends cc.Component {
         if (this.Tag == 1 || this.Tag == 2 || this.Tag == 3 || this.Tag == 4 || this.Tag == 5 || this.Tag == 6 || this.Tag == 7 || this.Tag == 8) {
             let childs = this.node.children;
             for (let i = 0; i < childs.length; i++) {
+                console.log("set thang nay");
                 childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = false;
                 if (childs[i].getComponent(BaseCard).id == 1) {
                     childs[i].setPosition(this.node.position.x, this.node.position.y)
@@ -269,6 +272,8 @@ export default class Cell extends cc.Component {
             this.SetIsMovingCard(this.IndexCard_onclick);
         }
         else if (mouse_onclickStatus == MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT) {
+            this.IndexCell_origin = this.node.parent.getSiblingIndex();
+            this.node.parent.setSiblingIndex(9);
             this.SetMovingCardToCellTop(this.IndexCard_onclick);
         }
     }

@@ -51,7 +51,7 @@ export default class Main extends cc.Component {
     @property(cc.Node)
     BG: cc.Node = null;
     private logs: Stack<CardLog>;
-    private newGame: boolean = false;
+    public newGame: boolean = false;
     private isAuto: boolean = false;
     private gameData: GameData = new GameData();
     private cards: BaseCard[];
@@ -89,6 +89,7 @@ export default class Main extends cc.Component {
     private isLoseGame_newGame: boolean = false;
     private isLoseGame_loadinggame: boolean = false;
     private pointWinGames: number[] = [];
+    private count_CheckCardWithCardInCell: number = 0;
     // LIFE-CYCLE CALLBACKS:
     //singleTon
     private static instance: Main | null = null;
@@ -100,15 +101,19 @@ export default class Main extends cc.Component {
     }
     // onLoad () {}
     protected onLoad(): void {
-        let arrScore = 1;
-        this.SavePointGame(arrScore);
+        this.CheckSaveData();
         AudioLoader.preloadAllAudioClips(() => {
             cc.log("Đã tải xong toàn bộ âm thanh.");
             this.StartGame();
             this.PlayMusic();
         });
-        cc.game.on(cc.game.EVENT_HIDE, () => {
-        })
+    }
+    CheckSaveData() {
+        let data = cc.sys.localStorage.getItem("GameScoreData");
+        if (!data) {
+            let a = 1;
+            this.SavePointGame(a);
+        }
     }
     start() {
         var manager = cc.director.getCollisionManager();
@@ -260,6 +265,7 @@ export default class Main extends cc.Component {
         let loadData: SaveData
         loadData = this.LoadDataGame();
         if (loadData != null) {
+            this.RemoveAllChildsInCells();
             this.gamePlayState = GAMEPLAY_STATUS.LOADING_GAME;
             for (let i = 0; i < loadData.infos.length; i++) {
                 let cardNode = cc.instantiate(this.CardPrefab);
@@ -391,6 +397,7 @@ export default class Main extends cc.Component {
         }
     }
     public SetInputCardsEnterCellOld(id_CellOld: number) {
+        console.log("co vao day hay khong");
         this.ID_cell_old = id_CellOld;
         let childs = this.Cell_intermediary.children;
         let test = [];
@@ -641,6 +648,7 @@ export default class Main extends cc.Component {
         }
         if (this.count_checkCellWithCell == 0) {
             this.Check_CardsWithAllcell = false;
+            console.log("Check_CardsWithAllcell = false;");
         } else {
             this.count_checkCellWithCell = 0;
         }
@@ -665,6 +673,7 @@ export default class Main extends cc.Component {
                     ((CardTopCells.type == CardTypeStatus.DIAMOND || CardTopCells.type == CardTypeStatus.HEART) &&
                         (cardCheck.type == CardTypeStatus.CLUB || cardCheck.type == CardTypeStatus.SPADE))) {
                     if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_HIND) {
+                        this.count_checkCellWithCell++;
                         CardTopCells.Select(true);
                         for (let j = 0; j < cardsCheck.length; j++) {
                             cardsCheck[j].Select(true);
@@ -688,9 +697,14 @@ export default class Main extends cc.Component {
             }
             this.CardWithCard(cardTopInCell_A);
         }
+        if (this.count_CheckCardWithCardInCell == 0) {
+            this.Check_cardWithCardInCells = false;
+            console.log("this.Check_cardWithCardInCells = false;");
+        } else {
+            this.count_CheckCardWithCardInCell = 0;
+        }
     }
     CardWithCard(Card_A: BaseCard) {
-        let count_checkCell = 0;
         let cardTopInCell_B: BaseCard = new BaseCard();
         for (let j = 1; j < this.Cells.length; j++) {
             let chidls = this.Cells[j].node.children;
@@ -706,32 +720,35 @@ export default class Main extends cc.Component {
                     ((Card_A.type == CardTypeStatus.DIAMOND || Card_A.type == CardTypeStatus.HEART) &&
                         (cardTopInCell_B.type == CardTypeStatus.CLUB || cardTopInCell_B.type == CardTypeStatus.SPADE))) {
                     if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_HIND) {
+                        this.count_CheckCardWithCardInCell++;
                         Card_A.Select(true);
                         cardTopInCell_B.Select(true);
                     } else if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_LOSE) {
-                        count_checkCell++;
+                        this.count_CheckCardWithCardInCell++;
                         this.Check_cardWithCardInCells = true;
                     }
                 }
             }
         }
-        if (count_checkCell == 0) {
-            this.Check_cardWithCardInCells = false;
-        } else {
-            count_checkCell = 0;
-        }
     }
     //cell with freeCell
     CheckCellWithFreeCells() {
         let count_checkCell = 0;
+        let cardTopCells: BaseCard = new BaseCard();
         for (let i = 0; i < this.Cells.length; i++) {
-            let cardTopCells = this.Cells[i].GetTopCell();
+            let chidls = this.Cells[i].node.children;
+            let chidlsLength = chidls.length;
+            if (chidlsLength > 0) {
+                cardTopCells = chidls[chidlsLength - 1].getComponent(BaseCard);
+            }
             for (let j = 0; j < this.FreeCell.length; j++) {
                 if (this.FreeCell[j].node.children.length == 0) {
                     if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_HIND) {
+                        count_checkCell++;
                         cardTopCells.Select(true);
                         this.InstantiateGlowCell(this.FreeCell[j].Tag);
                     } else if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_LOSE) {
+                        console.log("check lose");
                         count_checkCell++;
                         this.Check_cellWithfreeCell = true;
                     }
@@ -740,6 +757,7 @@ export default class Main extends cc.Component {
         }
         if (count_checkCell == 0) {
             this.Check_cellWithfreeCell = false;
+            console.log(" this.Check_cellWithfreeCell = false;")
         } else {
             count_checkCell = 0;
         }
@@ -756,6 +774,14 @@ export default class Main extends cc.Component {
                 cardTopCells = childs[chidlsLength - 1].getComponent(BaseCard);
             }
             this.CheckCardAceCell(cardTopCells);
+        }
+        if (this.Count_checkAceCell == 0) {
+            if (this.check_cell_State == CHECK_CELL_STATUS.CHECK_CELL_WITH_ACECELL) {
+                this.Check_cellWithAceCell = false;
+                console.log("this.Check_cellWithAceCell = false;")
+            }
+        } else {
+            this.Count_checkAceCell = 0;
         }
     }
     //free cell with cell
@@ -779,6 +805,7 @@ export default class Main extends cc.Component {
                             ((Card_A.type == CardTypeStatus.DIAMOND || Card_A.type == CardTypeStatus.HEART) &&
                                 (cardTopInCell_B.type == CardTypeStatus.CLUB || cardTopInCell_B.type == CardTypeStatus.SPADE))) {
                             if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_HIND) {
+                                count_checkCell++;
                                 Card_A.Select(true);
                                 cardTopInCell_B.Select(true);
                             }
@@ -794,6 +821,7 @@ export default class Main extends cc.Component {
         }
         if (count_checkCell == 0) {
             this.Check_freeCellWithCell = false;
+            console.log(" this.Check_freeCellWithCell = false;");
         }
     }
     //free cell with aceCell
@@ -809,6 +837,15 @@ export default class Main extends cc.Component {
             }
             this.CheckCardAceCell(cardTopCells);
         }
+        if (this.Count_checkAceCell == 0) {
+
+            if (this.check_cell_State == CHECK_CELL_STATUS.CHECK_FREECELL_WITH_ACECELL) {
+                this.Check_freeCellWithAceCell = false;
+                console.log(" this.Check_freeCellWithAceCell = false;")
+            }
+        } else {
+            this.Count_checkAceCell = 0;
+        }
     }
     CheckCardAceCell(cardTopCells: BaseCard) {
         for (let j = 0; j < this.AceCell.length; j++) {
@@ -816,6 +853,7 @@ export default class Main extends cc.Component {
                 if (cardTopCells.type == this.AceCell[j].getComponent(AceCell).CardTypeGroup &&
                     cardTopCells.number_index == 1) {
                     if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_HIND) {
+                        this.Count_checkAceCell++;
                         cardTopCells.Select(true);
                         this.InstantiateGlowCell(this.AceCell[j].getComponent(AceCell).Tag);
                     } else if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_LOSE) {
@@ -834,30 +872,22 @@ export default class Main extends cc.Component {
                     this.AceCell[j].getComponent(AceCell).GetTopCell().number_index + 1 == cardTopCells.number_index) {
                     if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_HIND) {
                         if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_HIND) {
+                            this.Count_checkAceCell++;
                             cardTopCells.Select(true);
                             this.AceCell[j].getComponent(AceCell).Select(true);
                         } else if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_LOSE) {
-                            this.Count_checkAceCell++;
                             if (this.check_cell_State == CHECK_CELL_STATUS.CHECK_CELL_WITH_ACECELL) {
+                                this.Count_checkAceCell++;
                                 this.Check_cellWithAceCell = true;
                             }
                             else if (this.check_cell_State == CHECK_CELL_STATUS.CHECK_FREECELL_WITH_ACECELL) {
+                                this.Count_checkAceCell++;
                                 this.Check_freeCellWithAceCell = true;
                             }
                         }
                     }
                 }
             }
-        }
-        if (this.Count_checkAceCell == 0) {
-            if (this.check_cell_State == CHECK_CELL_STATUS.CHECK_CELL_WITH_ACECELL) {
-                this.Check_cellWithAceCell = false;
-            }
-            else if (this.check_cell_State == CHECK_CELL_STATUS.CHECK_FREECELL_WITH_ACECELL) {
-                this.Check_freeCellWithAceCell = false;
-            }
-        } else {
-            this.Count_checkAceCell = 0;
         }
     }
     //instantiateSGlowCell
@@ -968,11 +998,28 @@ export default class Main extends cc.Component {
         this.TopManager.getComponent(TopGroupManager).InitTopInfo();
         this.GameDataStack = [];
         this.newGame = true;
+        this.InitCellStatus();
         this.StartGame();
+    }
+    public InitCellStatus() {
+        this.isAceCell14_Full = false;
+        this.isAceCell15_full = false;
+        this.isAceCell16_Full = false;
+        this.isAceCell17_full = false;
+        this.Check_CardsWithAllcell = true;
+        this.Check_cardWithCardInCells = true;
+        this.Check_cellWithAceCell = true;
+        this.Check_cellWithfreeCell = true;
+        this.Check_freeCellWithCell = true;
+        this.Check_freeCellWithAceCell = true;
+        this.isLoseGame_loadinggame = false;
+        this.isLoseGame_newGame = false;
+
     }
     public SetOptions() {
         this.node.parent.getComponent(GameControler).SetOptions();
-    }//************************************************THEMES SETTING**********************************************/
+    }
+    //************************************************THEMES SETTING**********************************************/
     public ThemesSetting(themesIndex: number) {
         let pathBackground = "Images/BG/";
         LoadImages.Instance.LoadingImages(pathBackground, themesIndex.toString(), (spriteFrame) => {
@@ -1073,11 +1120,10 @@ export default class Main extends cc.Component {
         this.node.parent.getComponent(GameControler).OnWinGame(game_data.move, game_data.time, game_data.score, rankPoint, TopScore);
     }
     ShowLoseGame() {
-        // this.node.parent.getComponent(GameControler).OnLoseGame();
+        this.node.parent.getComponent(GameControler).OnLoseGame();
     }
     CheckLoseGame() {
         this.Check_Lose_Game();
-        this.IsLoseGame();
     }
     public Check_Lose_Game() {
         this.CheckGameState = CHECK_GAME_STATUS.CHECK_LOSE;
@@ -1092,6 +1138,7 @@ export default class Main extends cc.Component {
             this.isLoseGame_loadinggame = false;
             this.isLoseGame_newGame = false;
             this.ShowLoseGame();
+            this.InitCellStatus()
         } else {
             this.Check_CardsWithAllcell = true;
             this.Check_cardWithCardInCells = true;
@@ -1102,6 +1149,15 @@ export default class Main extends cc.Component {
             this.isLoseGame_loadinggame = false;
             this.isLoseGame_newGame = false;
             console.log("set all true");
+        }
+        if (this.Check_CardsWithAllcell || this.Check_cardWithCardInCells || this.Check_cellWithAceCell ||
+            this.Check_cellWithfreeCell || this.Check_freeCellWithCell || this.Check_freeCellWithAceCell) {
+            this.Check_CardsWithAllcell = true;
+            this.Check_cardWithCardInCells = true;
+            this.Check_cellWithAceCell = true;
+            this.Check_cellWithfreeCell = true;
+            this.Check_freeCellWithCell = true;
+            this.Check_freeCellWithAceCell = true;
         }
     }
     Check_WINLOSE_game() {

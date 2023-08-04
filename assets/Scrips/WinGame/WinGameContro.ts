@@ -1,3 +1,5 @@
+import PlayAudio from "../audio/PlayAuido";
+import { GameControler } from "../maingame/GameControler";
 
 const { ccclass, property } = cc._decorator;
 
@@ -42,6 +44,18 @@ export default class WinGameContro extends cc.Component {
         }
         result = minString + ":" + seconString;
         return result;
+    }
+    OnClickButton_done() {
+        this.node.parent.getComponent(GameControler).OffWinGame();
+    }
+    OnClickButton_Home() {
+        this.node.parent.getComponent(GameControler).ComebackHomefromWinGame();
+    }
+    OnClickButton_next() {
+        this.node.parent.getComponent(GameControler).GamePlay_next_FromWinGame();
+    }
+    OnClickSound() {
+        PlayAudio.Instance.AudioEffect_touch();
     }
 
 }

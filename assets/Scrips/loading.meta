@@ -1,9 +1,9 @@
 {
   "ver": "1.1.3",
-  "uuid": "f8b5e9db-fddd-48c1-b8d8-d6c785a7d031",
+  "uuid": "0ebac505-05d5-4217-a7aa-a3e43d34bc19",
   "importer": "folder",
-  "isBundle": true,
-  "bundleName": "prefabs",
+  "isBundle": false,
+  "bundleName": "",
   "priority": 1,
   "compressionType": {},
   "optimizeHotUpdate": {},

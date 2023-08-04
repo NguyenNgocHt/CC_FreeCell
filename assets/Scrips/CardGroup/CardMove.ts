@@ -1,5 +1,5 @@
 import { BaseCard } from "./BaseCard";
-import { GAME_LISTEN_TO_EVENTS, MOUSE_ONCLICK_LEFT_RIGHT_STATUS, MOUSE_STATUS } from "../audio/config";
+import { GAME_LISTEN_TO_EVENTS, MOUSE_ONCLICK_LEFT_RIGHT_STATUS, MOUSE_STATUS, TOUCH_STATUS } from "../audio/config";
 import Cell from "../cellGroup/Cell";
 import { GameSave } from "../gameData/SaveData";
 import FreeCell from "../cellGroup/FreeCell";
@@ -23,25 +23,37 @@ export default class CardMove extends cc.Component {
     private offset: cc.Vec2 = cc.v2(0, 0);
     private indexOld_parent: number;
     private indexOld_parent_parent_parent: number;
+    private TouchCount: number = 0;
+    private DoubleTouchTime: number = 0.5;
+    private touchStatus: TOUCH_STATUS = TOUCH_STATUS.NO_STATUS;
     protected onLoad(): void {
     }
     start() {
         this.RegisterEvent();
     }
     public RegisterEvent() {
-        this.node.on(cc.Node.EventType.MOUSE_DOWN, this.onCardTouchStart, this);
-        this.node.on(cc.Node.EventType.MOUSE_MOVE, this.onCardTouchMove, this);
-        this.node.on(cc.Node.EventType.MOUSE_UP, this.onCardTouchEnd, this);
-        this.node.on(cc.Node.EventType.MOUSE_LEAVE, this.onMouseLeave, this);
+        this.node.on(cc.Node.EventType.TOUCH_START, this.onCardTouchStart, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onCardTouchMove, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this.onCardTouchEnd, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onMouseLeave, this);
     }
     protected onDisable(): void {
-        this.node.off(cc.Node.EventType.MOUSE_DOWN);
-        this.node.off(cc.Node.EventType.MOUSE_MOVE);
-        this.node.off(cc.Node.EventType.MOUSE_UP);
-        this.node.off(cc.Node.EventType.MOUSE_LEAVE);
+        this.node.off(cc.Node.EventType.TOUCH_START);
+        this.node.off(cc.Node.EventType.TOUCH_MOVE);
+        this.node.off(cc.Node.EventType.TOUCH_END);
+        this.node.off(cc.Node.EventType.TOUCH_CANCEL);
     }
-    private onCardTouchStart(event: cc.Event.EventMouse) {
-        if (event.getButton() === cc.Event.EventMouse.BUTTON_LEFT) {
+    private onCardTouchStart(event: cc.Event.EventTouch) {
+        this.TouchCount++;
+        this.scheduleOnce(function () {
+            this.TouchCount = 0;
+        }, this.DoubleTouchTime)
+        if (this.TouchCount >= 2) {
+            this.touchStatus = TOUCH_STATUS.DOUBLE_TOUCH;
+        } else {
+            this.touchStatus = TOUCH_STATUS.TOUCH;
+        }
+        if (this.touchStatus == TOUCH_STATUS.TOUCH) {
             PlayAudio.Instance.AudioEffect_touch();
             this.getOldIndex();
             this.OpenSetNewSblIndexCell();
@@ -58,14 +70,14 @@ export default class CardMove extends cc.Component {
                     }
                 })
                 .start();
-        } else if (event.getButton() === cc.Event.EventMouse.BUTTON_RIGHT) {
+        } else if (this.touchStatus == TOUCH_STATUS.DOUBLE_TOUCH) {
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT;
             PlayAudio.Instance.AudioEffect_touch();
             this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus);
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.NO_STATUS;
         }
     }
-    private onCardTouchMove(event: cc.Event.EventMouse) {
+    private onCardTouchMove(event: cc.Event.EventTouch) {
         if (this.isMoving) {
             this.mousePos = new cc.Vec2(event.getLocationX(), event.getLocationY());
             if (this.node.getComponent(BaseCard).tag_group == 9) {
