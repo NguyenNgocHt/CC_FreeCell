@@ -29,6 +29,8 @@ export class CardLog {
 @ccclass
 export default class Main extends cc.Component {
     @property(cc.Node)
+    Cell_intermediary_test: cc.Node = null;
+    @property(cc.Node)
     TopManager: cc.Node = null;
     @property(cc.Node)
     Temptransform: cc.Node = null;
@@ -53,6 +55,7 @@ export default class Main extends cc.Component {
     private isAuto: boolean = false;
     private gameData: GameData = new GameData();
     private cards: BaseCard[];
+    private cards_Initintermediary: BaseCard[];
     private cards_entermediary: BaseCard[];
     private ID_cell_old: number = 0;
     private CounMovingAcecell: number = 0;
@@ -138,6 +141,7 @@ export default class Main extends cc.Component {
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
         this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE, this.UpdateCountMove, this);
+        this.Cell_intermediary_test.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
     }
     protected onDisable(): void {
         for (let i = 0; i < this.Cells.length; i++) {
@@ -320,7 +324,32 @@ export default class Main extends cc.Component {
                 }
             }
         }
-        let childs = this.Temptransform.children;
+    }
+    public InitCell_Intermediary(cards: BaseCard[]) {
+        if (!this.cards_Initintermediary) {
+            this.cards_Initintermediary = [];
+        }
+        let tagCell = cards[0].tag_group;
+        this.cards_Initintermediary.splice(0, this.cards_Initintermediary.length);
+        this.Cell_intermediary_test.removeAllChildren();
+        this.Cell_intermediary_test.getComponent(Cell).cards = [];
+        for (let i = 0; i < cards.length; i++) {
+            this.cards_Initintermediary.push(cards[i]);
+        }
+        for (let i = 0; i < this.cards_Initintermediary.length; i++) {
+            let cardNode = cc.instantiate(this.CardPrefab);
+            if (cardNode) {
+                cardNode.position = this.Cell_intermediary_test.position;
+                let card = cardNode.getComponent(BaseCard);
+                if (card) {
+                    card.Init(this.cards_Initintermediary[i].number_index, this.cards_Initintermediary[i].type, this.Cell_intermediary_test, this);
+                }
+                this.Cell_intermediary_test.getComponent(Cell).Add(card);
+            }
+        }
+        this.Cell_intermediary_test.setPosition(0, -55);
+        this.Cell_intermediary_test.getComponent(Cell).Set_positionCell_intermediary(this.Cell_intermediary_test.position);
+        this.Cells[tagCell - 1].RemoveCards_intermediryOutput();
     }
     public Shuffle() {
         this.cards = this.cards !== null && this.cards !== undefined ? this.cards : this.cards = [];
@@ -379,7 +408,18 @@ export default class Main extends cc.Component {
         }
         if (this.cards_entermediary) {
             this.SetDataToCardIntermediary();
+            // this.SetDataToCardIntermediary_Test();
         }
+    }
+    SetDataToCardIntermediary_Test() {
+        let worldPositionCard = this.cards_entermediary[0].node.parent.convertToWorldSpaceAR(this.cards_entermediary[0].node.position);
+        let localPositionCard_entermediary_test = this.Cell_intermediary_test.parent.convertToNodeSpaceAR(worldPositionCard);
+        this.Cell_intermediary_test.setPosition(localPositionCard_entermediary_test.x, localPositionCard_entermediary_test.y + 55);
+        this.Cell_intermediary_test.setSiblingIndex(9);
+        this.Cell_intermediary_test.getComponent(Cell).Cards_intermediaryInput = [];
+        this.Cell_intermediary_test.getComponent(Cell).Set_positionCell_intermediary(this.Cell_intermediary_test.position);
+        this.InitCell_Intermediary(this.cards_entermediary);
+
     }
     public SetDataToCardIntermediary() {
         let worldPositionCard = this.cards_entermediary[0].node.parent.convertToWorldSpaceAR(this.cards_entermediary[0].node.position);
@@ -393,6 +433,7 @@ export default class Main extends cc.Component {
         }
     }
     public SetInputCardsEnterCellOld(id_CellOld: number) {
+        console.log("nhay vao day main");
         this.ID_cell_old = id_CellOld;
         let childs = this.Cell_intermediary.children;
         let test = [];

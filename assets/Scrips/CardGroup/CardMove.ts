@@ -31,10 +31,10 @@ export default class CardMove extends cc.Component {
         this.RegisterEvent();
     }
     public RegisterEvent() {
-        this.node.on(cc.Node.EventType.TOUCH_START, this.onCardTouchStart, this);
+        this.node.on(cc.Node.EventType.TOUCH_START, this.onCardTouchStart.bind(this));
         this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onCardTouchMove.bind(this));
-        this.node.on(cc.Node.EventType.TOUCH_END, this.onCardTouchEnd, this);
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onCardTouchEnd, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this.onCardTouchEnd.bind(this));
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onCardTouchEnd.bind(this));
     }
     protected onDisable(): void {
         this.node.off(cc.Node.EventType.TOUCH_START);
@@ -79,10 +79,11 @@ export default class CardMove extends cc.Component {
         }
     }
     private onCardTouchMove(event: cc.Event.EventTouch) {
+        console.log("isMoving");
         if (this.isMoving) {
             const touchPos = event.getLocation();
             const delta = touchPos.sub(this.touchStartPos);
-            if (this.node.getComponent(BaseCard).tag_group == 9) {
+            if (this.node.getComponent(BaseCard).tag_group == 9 || this.node.getComponent(BaseCard).tag_group == 20) {
                 this.node.parent.x += delta.x;
                 this.node.parent.y += delta.y;
                 this.touchStartPos = touchPos;
@@ -110,7 +111,7 @@ export default class CardMove extends cc.Component {
     public CardMovingOrigin() {
         if (!this.isInputCell) {
             this.Mouse_status = MOUSE_STATUS.NO_STATUS;
-            if (this.node.getComponent(BaseCard).tag_group == 9) {
+            if (this.node.getComponent(BaseCard).tag_group == 9 || this.node.getComponent(BaseCard).tag_group == 20) {
                 cc.tween(this.node.parent)
                     .to(0.1, { position: new cc.Vec3(this.node.parent.getComponent(Cell).posCell_intermediry) })
                     .call(() => {

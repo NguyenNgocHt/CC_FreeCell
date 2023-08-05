@@ -123,16 +123,48 @@ export default class Cell extends cc.Component {
                 childs[i].removeComponent(CardMove);
                 childs[i].removeComponent(CardColliders);
             }
+        } else if (this.Tag == 20) {
+            let childs = this.node.children;
+            for (let i = 0; i < childs.length; i++) {
+                childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = true;
+                if (i == 0) {
+                    childs[i].setPosition(this.node.position.x, this.node.position.y)
+                    childs[i].getComponent(CardMove).isMoving = true;
+                } else {
+                    childs[i].setPosition(this.node.position.x, this.node.position.y - i * 50);
+                }
+            }
         }
     }
     SetPositionAllChild_cardEntermediary() {
         let childs = this.node.children;
         for (let i = 0; i < childs.length; i++) {
-            childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = true;
+            if (childs[i].hasEventListener(cc.Node.EventType.TOUCH_START)) {
+                console.log("Node has registered TOUCH_START event.");
+            } else {
+                console.log("Node hasn't registered TOUCH_START event.");
+            }
+            if (childs[i].hasEventListener(cc.Node.EventType.TOUCH_MOVE)) {
+                console.log("Node has registered TOUCH_START event.");
+            } else {
+                console.log("Node hasn't registered TOUCH_START event.");
+            }
+            if (childs[i].hasEventListener(cc.Node.EventType.TOUCH_END)) {
+                console.log("Node has registered TOUCH_START event.");
+            } else {
+                console.log("Node hasn't registered TOUCH_START event.");
+            }
+            childs[i].getComponent(CardMove).RegisterEvent();
             if (i == 0) {
                 childs[i].getComponent(CardMove).isMoving = true;
             }
             childs[i].getComponent(BaseCard).AddCollider();
+            cc.tween(this.node)
+                .delay(0.1)
+                .call(() => {
+                    childs[i].getComponent(BaseCard).Select(true);
+                })
+                .start();
         }
     }
     SetPositionAllChild_InputCardsEnterCellOld() {
@@ -254,6 +286,18 @@ export default class Cell extends cc.Component {
         this.cards = [];
         for (let i = 0; i < this.cards_temporary.length; i++) {
             this.cards.push(this.cards_temporary[i]);
+        }
+
+    }
+    public RemoveCards_intermediryOutput() {
+        let chidls = this.node.children;
+        for (let i = 0; i < chidls.length; i++) {
+            for (let j = 0; j < this.carts_intermediaryOutput.length; j++) {
+                if (chidls[i].getComponent(BaseCard).number_index == this.carts_intermediaryOutput[j].number_index &&
+                    chidls[i].getComponent(BaseCard).type == this.carts_intermediaryOutput[j].type) {
+                    chidls[i].removeFromParent();
+                }
+            }
         }
     }
     public GetCardIndex(index: number, mouse_onclickStatus: MOUSE_ONCLICK_LEFT_RIGHT_STATUS, PosTouchStart: cc.Vec2) {
