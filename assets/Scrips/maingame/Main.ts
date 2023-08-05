@@ -10,9 +10,7 @@ import CheckRandomNumber from "../common/CheckRandomNumber";
 import { GameManager } from "./GameManager";
 import CardMove from "../CardGroup/CardMove";
 import { CHECK_CELL_STATUS, CHECK_GAME_STATUS, GAMEPLAY_STATUS, GAME_LISTEN_TO_EVENTS } from "../audio/config";
-import CellMove from "../cellGroup/CellMove";
 import CardColliders from "../CardGroup/CardColliders";
-import singleTon from "./Sigleton";
 import TopGroupManager from "../topGroup/TopGroupManager";
 import { GameControler } from "./GameControler";
 import PlayAudio from "../audio/PlayAuido";
@@ -60,7 +58,6 @@ export default class Main extends cc.Component {
     private CounMovingAcecell: number = 0;
     private Count_checkAceCell: number = 0;
     private isMovingFreecell: boolean;
-    private singleTon: singleTon = null;
     private GameDataStack: SaveData[] = [];
     private currentGameStateIndex: number = -1;
     private audioPlay: PlayAudio = null;
@@ -90,6 +87,7 @@ export default class Main extends cc.Component {
     private isLoseGame_loadinggame: boolean = false;
     private pointWinGames: number[] = [];
     private count_CheckCardWithCardInCell: number = 0;
+    private PositionStartIndexPosition: number = 0;
     // LIFE-CYCLE CALLBACKS:
     //singleTon
     private static instance: Main | null = null;
@@ -120,6 +118,7 @@ export default class Main extends cc.Component {
         manager.enabled = true;
         this.EventRegister();
         this.audioPlay = this.node.getComponent(PlayAudio);
+        this.PositionStartIndexPosition = this.StartPosition.getSiblingIndex();
     }
     public EventRegister() {
         for (let i = 0; i < this.Cells.length; i++) {
@@ -344,8 +343,6 @@ export default class Main extends cc.Component {
     }
     public DealCard()//phát bài 
     {
-        // GameManager.Instance.ShowLoading();
-        // SoundManager.Instance.OnPlaySound("deal");
         this.AnimateDeal(0);
     }
     public AnimateDeal(i: number)// hoạt động phát bài
@@ -355,7 +352,6 @@ export default class Main extends cc.Component {
             this.TopManager.getComponent(TopGroupManager).SettimerStart(true);
             this.GetDataGame();
             this.SaveDataGame();
-            // GameManager.Instance.CloseLoading();
             return;
         }
         PlayAudio.Instance.AudioEffect_deal();
@@ -368,7 +364,7 @@ export default class Main extends cc.Component {
         }
         let localTargetPosition = this.cards[i].node.parent.convertToNodeSpaceAR(worldPosition);
         cc.tween(this.cards[i].node)
-            .to(0.1, { position: new cc.Vec3(localTargetPosition) })
+            .to(0.05, { position: new cc.Vec3(localTargetPosition) })
             .call(() => {
                 this.Cells[i % this.Cells.length].Add(this.cards[i]);
                 this.AnimateDeal(i + 1);
@@ -389,7 +385,7 @@ export default class Main extends cc.Component {
         let worldPositionCard = this.cards_entermediary[0].node.parent.convertToWorldSpaceAR(this.cards_entermediary[0].node.position);
         let localPositionCard_entermediary = this.Cell_intermediary.parent.convertToNodeSpaceAR(worldPositionCard);
         this.Cell_intermediary.setPosition(localPositionCard_entermediary.x, localPositionCard_entermediary.y + 55);
-        this.Cell_intermediary.setSiblingIndex(10);
+        this.Cell_intermediary.setSiblingIndex(9);
         this.Cell_intermediary.getComponent(Cell).Cards_intermediaryInput = [];
         this.Cell_intermediary.getComponent(Cell).Set_positionCell_intermediary(this.Cell_intermediary.position);
         for (let i = 0; i < this.cards_entermediary.length; i++) {
@@ -397,7 +393,6 @@ export default class Main extends cc.Component {
         }
     }
     public SetInputCardsEnterCellOld(id_CellOld: number) {
-        console.log("co vao day hay khong");
         this.ID_cell_old = id_CellOld;
         let childs = this.Cell_intermediary.children;
         let test = [];
@@ -420,16 +415,16 @@ export default class Main extends cc.Component {
         }
         this.RemoveAllCardGlow()
     }
-    public CheckAceCell_inputCards(idCellBottom: number, indexCard: number) {
+    public CheckAceCell_inputCards(TagCellBottom: number, indexCard: number) {
         let Cell_child: cc.Node[] = [];
-        if (idCellBottom == 8 || idCellBottom == 9 || idCellBottom == 10 || idCellBottom == 11) {
+        if (TagCellBottom == 10 || TagCellBottom == 11 || TagCellBottom == 12 || TagCellBottom == 13) {
             for (let i = 0; i < this.FreeCell.length; i++) {
-                if (i == idCellBottom - 8) {
+                if (i == TagCellBottom - 10) {
                     Cell_child = this.FreeCell[i].node.children;
                 }
             }
         } else {
-            Cell_child = this.Cells[idCellBottom].node.children;
+            Cell_child = this.Cells[TagCellBottom - 1].node.children;
         }
         let baseCard = Cell_child[indexCard].getComponent(BaseCard);
         this.InitTypeAceCell();
@@ -449,15 +444,15 @@ export default class Main extends cc.Component {
                             PlayAudio.Instance.AudioEffect_swap();
                             this.AceCell[i].getComponent(AceCell).Add(baseCard);
                             this.GetDataGame();
-                            this.Cells[idCellBottom].ResetCardsIndex();
-                            this.Cells[idCellBottom].EmitCheckChildsInCell(idCellBottom);
-                            if (idCellBottom == 8 || idCellBottom == 9 || idCellBottom == 10 || idCellBottom == 11) {
-                                this.FreeCell[idCellBottom - 8].ResetCardsIndex();
-                                this.CheckChildsIncell();
-                                this.RemoveCardFreeCell(idCellBottom + 2);
+                            if (TagCellBottom == 10 || TagCellBottom == 11 || TagCellBottom == 12 || TagCellBottom == 13) {
+                                this.FreeCell[TagCellBottom - 10].ResetCardsIndex();
+                                this.RemoveCardFreeCell(TagCellBottom);
                             } else {
-                                this.Cells[idCellBottom].ResetCardsIndex();
+                                this.Cells[TagCellBottom - 1].ResetCardsIndex();
+                                this.Cells[TagCellBottom - 1].EmitCheckChildsInCell(TagCellBottom);
+                                this.Cells[TagCellBottom - 1].ResetCardsIndex();
                                 this.CheckChildsIncell();
+                                this.SetIndexCellToOrigin(TagCellBottom);
                             }
                         })
                         .start();
@@ -478,13 +473,15 @@ export default class Main extends cc.Component {
                             PlayAudio.Instance.AudioEffect_swap();
                             this.AceCell[i].getComponent(AceCell).Add(baseCard);
                             this.GetDataGame();
-                            if (idCellBottom == 8 || idCellBottom == 9 || idCellBottom == 10 || idCellBottom == 11) {
-                                this.FreeCell[idCellBottom - 8].ResetCardsIndex();
-                                this.CheckChildsIncell();
-                                this.RemoveCardFreeCell(idCellBottom + 2);
+                            if (TagCellBottom == 10 || TagCellBottom == 11 || TagCellBottom == 12 || TagCellBottom == 13) {
+                                this.FreeCell[TagCellBottom - 10].ResetCardsIndex();
+                                this.RemoveCardFreeCell(TagCellBottom);
                             } else {
-                                this.Cells[idCellBottom].ResetCardsIndex();
+                                this.Cells[TagCellBottom - 1].ResetCardsIndex();
+                                this.Cells[TagCellBottom - 1].EmitCheckChildsInCell(TagCellBottom);
+                                this.Cells[TagCellBottom - 1].ResetCardsIndex();
                                 this.CheckChildsIncell();
+                                this.SetIndexCellToOrigin(TagCellBottom);
                             }
                         })
                         .start();
@@ -492,12 +489,14 @@ export default class Main extends cc.Component {
             }
         }
         if (this.CounMovingAcecell == 0) {
-            this.CardMoveToInputFreeCell(baseCard, idCellBottom);
+            if (TagCellBottom == 1 || TagCellBottom == 2 || TagCellBottom == 3 || TagCellBottom == 4 ||
+                TagCellBottom == 5 || TagCellBottom == 6 || TagCellBottom == 7 || TagCellBottom == 8)
+                this.CardMoveToInputFreeCell(baseCard, TagCellBottom);
         } else {
             this.CounMovingAcecell = 0;
         }
     }
-    public CardMoveToInputFreeCell(baseCard: BaseCard, IDCellBottom: number) {
+    public CardMoveToInputFreeCell(baseCard: BaseCard, TagCellBottom: number) {
         for (let i = 0; i < this.FreeCell.length; i++) {
             if (this.FreeCell[i].cards.length == 0) {
                 let worldPosFreeCell = this.FreeCell[i].node.parent.convertToWorldSpaceAR(this.FreeCell[i].node.position);
@@ -508,18 +507,20 @@ export default class Main extends cc.Component {
                     .call(() => {
                         PlayAudio.Instance.AudioEffect_swap();
                         this.FreeCell[i].Add(baseCard);
-                        this.Cells[IDCellBottom].ResetCardsIndex();
-                        this.Cells[IDCellBottom].EmitCheckChildsInCell(IDCellBottom);
+                        this.Cells[TagCellBottom - 1].ResetCardsIndex();
+                        this.Cells[TagCellBottom - 1].EmitCheckChildsInCell(TagCellBottom);
                         this.SetCardsCollider();
                         this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
                         this.GetDataGame();
+                        this.SetIndexCellToOrigin(TagCellBottom);
                     })
                     .start();
                 break;
             } else {
-                this.Cells[IDCellBottom].ResetCardsIndex();
-                this.Cells[IDCellBottom].EmitCheckChildsInCell(IDCellBottom);
+                this.Cells[TagCellBottom - 1].ResetCardsIndex();
+                this.Cells[TagCellBottom - 1].EmitCheckChildsInCell(TagCellBottom);
                 this.SetCardsCollider();
+                this.SetIndexCellToOrigin(TagCellBottom);
             }
         }
     }
@@ -553,9 +554,9 @@ export default class Main extends cc.Component {
             })
             .start();
     }
-    SetIndexCellToOrigin(tag_group: number) {
+    SetIndexCellToOrigin(tag_cell: number) {
         for (let i = 0; i < this.Cells.length; i++) {
-            if (i == tag_group - 1) {
+            if (i == tag_cell - 1) {
                 this.Cells[i].SetOriginCellIndex();
             }
         }
@@ -648,7 +649,6 @@ export default class Main extends cc.Component {
         }
         if (this.count_checkCellWithCell == 0) {
             this.Check_CardsWithAllcell = false;
-            console.log("Check_CardsWithAllcell = false;");
         } else {
             this.count_checkCellWithCell = 0;
         }
@@ -699,7 +699,6 @@ export default class Main extends cc.Component {
         }
         if (this.count_CheckCardWithCardInCell == 0) {
             this.Check_cardWithCardInCells = false;
-            console.log("this.Check_cardWithCardInCells = false;");
         } else {
             this.count_CheckCardWithCardInCell = 0;
         }
@@ -748,7 +747,6 @@ export default class Main extends cc.Component {
                         cardTopCells.Select(true);
                         this.InstantiateGlowCell(this.FreeCell[j].Tag);
                     } else if (this.CheckGameState == CHECK_GAME_STATUS.CHECK_LOSE) {
-                        console.log("check lose");
                         count_checkCell++;
                         this.Check_cellWithfreeCell = true;
                     }
@@ -757,7 +755,6 @@ export default class Main extends cc.Component {
         }
         if (count_checkCell == 0) {
             this.Check_cellWithfreeCell = false;
-            console.log(" this.Check_cellWithfreeCell = false;")
         } else {
             count_checkCell = 0;
         }
@@ -778,7 +775,6 @@ export default class Main extends cc.Component {
         if (this.Count_checkAceCell == 0) {
             if (this.check_cell_State == CHECK_CELL_STATUS.CHECK_CELL_WITH_ACECELL) {
                 this.Check_cellWithAceCell = false;
-                console.log("this.Check_cellWithAceCell = false;")
             }
         } else {
             this.Count_checkAceCell = 0;
@@ -821,7 +817,6 @@ export default class Main extends cc.Component {
         }
         if (count_checkCell == 0) {
             this.Check_freeCellWithCell = false;
-            console.log(" this.Check_freeCellWithCell = false;");
         }
     }
     //free cell with aceCell
@@ -841,7 +836,6 @@ export default class Main extends cc.Component {
 
             if (this.check_cell_State == CHECK_CELL_STATUS.CHECK_FREECELL_WITH_ACECELL) {
                 this.Check_freeCellWithAceCell = false;
-                console.log(" this.Check_freeCellWithAceCell = false;")
             }
         } else {
             this.Count_checkAceCell = 0;
@@ -990,6 +984,15 @@ export default class Main extends cc.Component {
         this.isPauseCountHindAuto = false;
     }
     //***************************************************MENU GAME ************************************************** */
+    InitIndexAllCell() {
+        for (let i = 0; i < this.Cells.length; i++) {
+            this.Cells[i].SetOriginCellIndex();
+        }
+        for (let i = 0; i < this.FreeCell.length; i++) {
+            this.FreeCell[i].SetOriginFreeCellIndex();
+        }
+        this.StartPosition.setSiblingIndex(4);
+    }
     public ToParentNode_showMenuGame() {
         this.node.parent.getComponent(GameControler).ShowMenuGame();
     }
@@ -999,6 +1002,7 @@ export default class Main extends cc.Component {
         this.GameDataStack = [];
         this.newGame = true;
         this.InitCellStatus();
+        this.InitIndexAllCell();
         this.StartGame();
     }
     public InitCellStatus() {
@@ -1033,27 +1037,22 @@ export default class Main extends cc.Component {
     //**************************************************CHECK WIN GAME*************************************************/
     CheckWinGame() {
         for (let i = 0; i < this.AceCell.length; i++) {
-            console.log("check win game");
             let chidls = this.AceCell[i].children;
             if (chidls.length >= 1) {
                 for (let j = 0; j < chidls.length; j++) {
                     let chilsLength = chidls.length;
                     if (j == chilsLength - 1) {
-                        if (chidls[j].getComponent(BaseCard).number_index == 1) {
+                        if (chidls[j].getComponent(BaseCard).number_index == 13) {
                             if (this.AceCell[i].getComponent(AceCell).Tag == 14) {
-                                console.log("win cell 14");
                                 this.isAceCell14_Full = true;
                             }
                             if (this.AceCell[i].getComponent(AceCell).Tag == 15) {
-                                console.log("win cell 15");
                                 this.isAceCell15_full = true;
                             }
                             if (this.AceCell[i].getComponent(AceCell).Tag == 16) {
-                                console.log("win cell 16");
                                 this.isAceCell16_Full = true;
                             }
                             if (this.AceCell[i].getComponent(AceCell).Tag == 17) {
-                                console.log("win cell 17");
                                 this.isAceCell17_full = true;
                             }
                         }
@@ -1065,7 +1064,7 @@ export default class Main extends cc.Component {
     }
     IsWinGame() {
         if (this.isAceCell14_Full == true && this.isAceCell15_full == true && this.isAceCell16_Full == true && this.isAceCell17_full == true) {
-
+            PlayAudio.Instance.AuidoEffect_WinGame();
             this.ShowWinGame();
         }
     }
@@ -1090,8 +1089,8 @@ export default class Main extends cc.Component {
             arr_score.push(this.pointWinGames[i]);
         }
         //sắp xếp từ lớn đến bé
-        for (let i = 0; i < arr_score.length - 2; i++) {
-            for (let j = i + 1; j < arr_score.length - 1; j++) {
+        for (let i = 0; i < arr_score.length - 1; i++) {
+            for (let j = i + 1; j < arr_score.length; j++) {
                 if (arr_score[i] <= arr_score[j]) {
                     let score = arr_score[i];
                     arr_score[i] = arr_score[j];
@@ -1115,6 +1114,7 @@ export default class Main extends cc.Component {
         }
         let game_data = this.TopManager.getComponent(TopGroupManager).Game_Data;
         this.SavePointGame(game_data.score);
+        this.pointWinGames = this.LoadPointGame();
         let TopScore = Math.max(...this.pointWinGames);
         let rankPoint = this.GetRankScoreGame(game_data.score);
         this.node.parent.getComponent(GameControler).OnWinGame(game_data.move, game_data.time, game_data.score, rankPoint, TopScore);
@@ -1133,10 +1133,10 @@ export default class Main extends cc.Component {
         if (!this.Check_CardsWithAllcell && !this.Check_cardWithCardInCells && !this.Check_cellWithAceCell &&
             !this.Check_cellWithfreeCell && !this.Check_freeCellWithCell && !this.Check_freeCellWithAceCell ||
             this.isLoseGame_loadinggame || this.isLoseGame_newGame) {
-            console.log("LOSE GAME");
             this.gamePlayState = GAMEPLAY_STATUS.NO_STATUS;
             this.isLoseGame_loadinggame = false;
             this.isLoseGame_newGame = false;
+            PlayAudio.Instance.AudioEffect_LoseGame();
             this.ShowLoseGame();
             this.InitCellStatus()
         } else {
@@ -1148,7 +1148,6 @@ export default class Main extends cc.Component {
             this.Check_freeCellWithAceCell = true;
             this.isLoseGame_loadinggame = false;
             this.isLoseGame_newGame = false;
-            console.log("set all true");
         }
         if (this.Check_CardsWithAllcell || this.Check_cardWithCardInCells || this.Check_cellWithAceCell ||
             this.Check_cellWithfreeCell || this.Check_freeCellWithCell || this.Check_freeCellWithAceCell) {

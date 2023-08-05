@@ -70,6 +70,16 @@ export default class PlayAudio extends cc.Component {
             this.playAudioOneShot("deal");
         }
     }
+    public AuidoEffect_WinGame() {
+        if (this.isPlayEffect) {
+            this.playAudioOneShot("victory");
+        }
+    }
+    public AudioEffect_LoseGame() {
+        if (this.isPlayEffect) {
+            this.playAudioOneShot("losegame");
+        }
+    }
     public AudioEffect_pauseAll() {
         this.isPlayEffect = false;
     }

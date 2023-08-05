@@ -4,15 +4,13 @@ import CardColliders from "../CardGroup/CardColliders";
 import CardMove from "../CardGroup/CardMove";
 import { CardTypeStatus } from "../CardGroup/CardType";
 import { GAME_LISTEN_TO_EVENTS, MOUSE_ONCLICK_LEFT_RIGHT_STATUS } from "../audio/config";
-import Main from "../maingame/Main";
-import singleTon from "../maingame/Sigleton";
-import CellMove from "./CellMove";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Cell extends cc.Component {
     @property
     Tag: number = 0;
+    public CardOrigin: BaseCard[] = []
     public cards: BaseCard[] = [];
     public Cards_intermediaryInput: BaseCard[];
     private carts_intermediaryOutput: BaseCard[];
@@ -27,9 +25,16 @@ export default class Cell extends cc.Component {
     private countCheckIndexMax: number = 0;
     private countPushIndexCard: number = 0;
     private IndexCard_onclick: number = 0;
-    private IndexCell_origin: number = 0;
+    private PosTouchStart: cc.Vec2 = new cc.Vec2(0, 0);
+    private IndexCellOrigin: number = 0;
     start() {
         this.cards = [];
+        if (this.Tag == 10 || this.Tag == 11 || this.Tag == 12 || this.Tag == 13) {
+            this.IndexCellOrigin = this.node.parent.parent.getSiblingIndex();
+        } else if (this.Tag == 1 || this.Tag == 2 || this.Tag == 3 || this.Tag == 4 ||
+            this.Tag == 5 || this.Tag == 6 || this.Tag == 7 || this.Tag == 8) {
+            this.IndexCellOrigin = this.node.parent.getSiblingIndex();
+        }
     }
     public InitCell() {
         this.cards = [];
@@ -48,7 +53,6 @@ export default class Cell extends cc.Component {
         if (!this.cards.includes(card)) {
             this.cards.push(card);
         }
-        console.log(this.cards, this.Tag);
         if (card.node.parent) {
             card.node.removeFromParent();
         }
@@ -71,6 +75,7 @@ export default class Cell extends cc.Component {
             card.node.removeFromParent();
         }
         this.node.addChild(card.node);
+        card.node.setPosition(newPositionCardInNodeParentNew);
         card.Belong(this.node, this.Cards_intermediaryInput.length);
         cc.tween(this.node)
             .delay(0.01)
@@ -78,7 +83,6 @@ export default class Cell extends cc.Component {
                 this.SetPositionAllChild_cardEntermediary();
             })
             .start();
-        card.node.setPosition(newPositionCardInNodeParentNew);
     }
     public Add_InputCardsEnterCellOld(card: BaseCard) {
         if (!this.cards) {
@@ -100,7 +104,6 @@ export default class Cell extends cc.Component {
         if (this.Tag == 1 || this.Tag == 2 || this.Tag == 3 || this.Tag == 4 || this.Tag == 5 || this.Tag == 6 || this.Tag == 7 || this.Tag == 8) {
             let childs = this.node.children;
             for (let i = 0; i < childs.length; i++) {
-                console.log("set thang nay");
                 childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = false;
                 if (childs[i].getComponent(BaseCard).id == 1) {
                     childs[i].setPosition(this.node.position.x, this.node.position.y)
@@ -253,7 +256,8 @@ export default class Cell extends cc.Component {
             this.cards.push(this.cards_temporary[i]);
         }
     }
-    public GetCardIndex(index: number, mouse_onclickStatus: MOUSE_ONCLICK_LEFT_RIGHT_STATUS) {
+    public GetCardIndex(index: number, mouse_onclickStatus: MOUSE_ONCLICK_LEFT_RIGHT_STATUS, PosTouchStart: cc.Vec2) {
+        this.PosTouchStart = PosTouchStart;
         this.countPushIndexCard += 1;
         if (this.countPushIndexCard == 1) {
             this.IndexCard_onclick = index;
@@ -272,8 +276,7 @@ export default class Cell extends cc.Component {
             this.SetIsMovingCard(this.IndexCard_onclick);
         }
         else if (mouse_onclickStatus == MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT) {
-            this.IndexCell_origin = this.node.parent.getSiblingIndex();
-            this.node.parent.setSiblingIndex(9);
+            this.node.parent.setSiblingIndex(8);
             this.SetMovingCardToCellTop(this.IndexCard_onclick);
         }
     }
@@ -290,8 +293,7 @@ export default class Cell extends cc.Component {
                             childs[i].getComponent(BaseCard).Select(true);
                         })
                         .start();
-                    this.IndexCell_origin = this.node.parent.getSiblingIndex();
-                    this.node.parent.setSiblingIndex(9);
+                    this.node.parent.setSiblingIndex(8);
                     this.ResetCardsIndex();
                 } else {
                     if (this.CheckBaseCard(i)) {
@@ -309,7 +311,10 @@ export default class Cell extends cc.Component {
         }
     }
     public SetOriginCellIndex() {
-        this.node.parent.setSiblingIndex(this.IndexCell_origin);
+        this.node.parent.setSiblingIndex(this.IndexCellOrigin);
+    }
+    public SetOriginFreeCellIndex() {
+        this.node.parent.parent.setSiblingIndex(this.IndexCellOrigin);
     }
     public ResetCardsIndex() {
         cc.tween(this.node)
@@ -391,7 +396,7 @@ export default class Cell extends cc.Component {
     SetMovingCardToCellTop(indexMax: number) {
         let childs = this.node.children;
         if (indexMax == childs.length - 1) {
-            this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.id, indexMax);
+            this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.Tag, indexMax);
         } else {
             this.ResetCardsIndex();
         }

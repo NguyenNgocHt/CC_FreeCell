@@ -74,12 +74,10 @@ export class GameControler extends cc.Component {
     }
     public ComebackHomefromWinGame() {
         this.WinGame.active = false;
-        this.MainGame.active = false;
         this.Home.active = true;
     }
     public ComebackHomefromLoseGame() {
         this.LoseGame.active = false;
-        this.MainGame.active = false;
         this.Home.active = true;
     }
     //loading contro

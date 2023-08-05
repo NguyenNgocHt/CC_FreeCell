@@ -33,6 +33,7 @@ export default class CardColliders extends cc.Component {
                                 && this._baseCard_other.tag_group != 14 && this._baseCard_other.tag_group != 15
                                 && this._baseCard_other.tag_group != 16 && this._baseCard_other.tag_group != 17) {
                                 if (this._baseCard_self.tag_group == 9 && this._baseCard_other.tag_group != 9) {
+                                    console.log("collider tag_9");
                                     PlayAudio.Instance.AudioEffect_swap();
                                     self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
                                     other.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;

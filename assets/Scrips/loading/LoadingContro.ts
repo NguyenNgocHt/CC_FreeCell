@@ -36,7 +36,7 @@ export default class LoadingContro extends cc.Component {
     protected update(dt: number): void {
         if (this.isbarStart) {
             this.countUpdate++;
-            if (this.countUpdate % 12 == 0) {
+            if (this.countUpdate % 5 == 0) {
                 this.InitBar();
             }
         }

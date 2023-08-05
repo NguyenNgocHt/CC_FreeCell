@@ -14,8 +14,6 @@ export default class CardMove extends cc.Component {
     private originPosition: cc.Vec3;
     public Mouse_status: MOUSE_STATUS = MOUSE_STATUS.NO_STATUS;
     public Mouse_onClickStatus: MOUSE_ONCLICK_LEFT_RIGHT_STATUS = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.NO_STATUS;
-    @property(cc.Button)
-    CardButton: cc.Button = null;
     private debounceTimeout: any = null;
     private targetPos: cc.Vec3 = new cc.Vec3();
     private mousePos: cc.Vec2 = cc.v2(0, 0);
@@ -26,6 +24,7 @@ export default class CardMove extends cc.Component {
     private TouchCount: number = 0;
     private DoubleTouchTime: number = 0.5;
     private touchStatus: TOUCH_STATUS = TOUCH_STATUS.NO_STATUS;
+    private touchStartPos: cc.Vec2 = new cc.Vec2(0, 0);
     protected onLoad(): void {
     }
     start() {
@@ -33,9 +32,9 @@ export default class CardMove extends cc.Component {
     }
     public RegisterEvent() {
         this.node.on(cc.Node.EventType.TOUCH_START, this.onCardTouchStart, this);
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onCardTouchMove, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onCardTouchMove.bind(this));
         this.node.on(cc.Node.EventType.TOUCH_END, this.onCardTouchEnd, this);
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onMouseLeave, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onCardTouchEnd, this);
     }
     protected onDisable(): void {
         this.node.off(cc.Node.EventType.TOUCH_START);
@@ -54,12 +53,14 @@ export default class CardMove extends cc.Component {
             this.touchStatus = TOUCH_STATUS.TOUCH;
         }
         if (this.touchStatus == TOUCH_STATUS.TOUCH) {
+            this.touchStartPos = event.getLocation();
+
             PlayAudio.Instance.AudioEffect_touch();
             this.getOldIndex();
             this.OpenSetNewSblIndexCell();
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_LEFT;
             this.originPosition = this.node.position;
-            this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus);
+            this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus, this.touchStartPos);
             let CellNode = this.node.parent.getComponent(Cell);
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.NO_STATUS;
             cc.tween(this.node)
@@ -73,17 +74,18 @@ export default class CardMove extends cc.Component {
         } else if (this.touchStatus == TOUCH_STATUS.DOUBLE_TOUCH) {
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT;
             PlayAudio.Instance.AudioEffect_touch();
-            this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus);
+            this.node.parent.getComponent(Cell).GetCardIndex(this.node.getSiblingIndex(), this.Mouse_onClickStatus, this.touchStartPos);
             this.Mouse_onClickStatus = MOUSE_ONCLICK_LEFT_RIGHT_STATUS.NO_STATUS;
         }
     }
     private onCardTouchMove(event: cc.Event.EventTouch) {
         if (this.isMoving) {
-            this.mousePos = new cc.Vec2(event.getLocationX(), event.getLocationY());
+            const touchPos = event.getLocation();
+            const delta = touchPos.sub(this.touchStartPos);
             if (this.node.getComponent(BaseCard).tag_group == 9) {
-                const delta = event.getDelta();
                 this.node.parent.x += delta.x;
                 this.node.parent.y += delta.y;
+                this.touchStartPos = touchPos;
             } else {
                 const mousePos = event.getLocation();
                 const newPos = new cc.Vec3(mousePos.x, mousePos.y, 0);
@@ -121,8 +123,9 @@ export default class CardMove extends cc.Component {
                 cc.tween(this.node)
                     .to(0.1, { position: new cc.Vec3(this.originPosition) })
                     .call(() => {
-                        this.node.getComponent(BaseCard).Select(false);
                         this.isMoving = false;
+                        this.node.getComponent(BaseCard).Select(false);
+                        this.node.parent.getComponent(Cell).SetOriginCellIndex();
                         this.SetOilIndexNode();
                         PlayAudio.Instance.AudioEffect_swap();
                     })

@@ -1771,7 +1771,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 93.42,
+      "width": 187.71,
       "height": 50.4
     },
     "_anchorPoint": {
@@ -1783,7 +1783,7 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        -173,
+        -128.368,
         0,
         0,
         0,
@@ -1823,8 +1823,8 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_string": "Hind",
-    "_N$string": "Hind",
+    "_string": "AutoHind",
+    "_N$string": "AutoHind",
     "_fontSize": 40,
     "_lineHeight": 40,
     "_enableWrapText": true,
