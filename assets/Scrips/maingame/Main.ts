@@ -29,8 +29,6 @@ export class CardLog {
 @ccclass
 export default class Main extends cc.Component {
     @property(cc.Node)
-    Cell_intermediary_test: cc.Node = null;
-    @property(cc.Node)
     TopManager: cc.Node = null;
     @property(cc.Node)
     Temptransform: cc.Node = null;
@@ -138,10 +136,6 @@ export default class Main extends cc.Component {
             this.FreeCell[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.CheckAceCell_inputCards, this);
             this.FreeCell[i].node.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
         }
-        this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
-        this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD, this.SetCardsCollider, this);
-        this.Cell_intermediary.on(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE, this.UpdateCountMove, this);
-        this.Cell_intermediary_test.on(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN, this.SetInputCardsEnterCellOld, this);
     }
     protected onDisable(): void {
         for (let i = 0; i < this.Cells.length; i++) {
@@ -157,9 +151,6 @@ export default class Main extends cc.Component {
         for (let i = 0; i < this.FreeCell.length; i++) {
             this.FreeCell[i].node.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT);
         }
-        this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_OUTPUT_CELL_MAIN);
-        this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_CARD);
-        this.Cell_intermediary.off(GAME_LISTEN_TO_EVENTS.DATA_UPDATE_COUNT_MOVE);
     }
     SaveDataGame() {
         this.saveData = this.SaveGame();
@@ -325,32 +316,6 @@ export default class Main extends cc.Component {
             }
         }
     }
-    public InitCell_Intermediary(cards: BaseCard[]) {
-        if (!this.cards_Initintermediary) {
-            this.cards_Initintermediary = [];
-        }
-        let tagCell = cards[0].tag_group;
-        this.cards_Initintermediary.splice(0, this.cards_Initintermediary.length);
-        this.Cell_intermediary_test.removeAllChildren();
-        this.Cell_intermediary_test.getComponent(Cell).cards = [];
-        for (let i = 0; i < cards.length; i++) {
-            this.cards_Initintermediary.push(cards[i]);
-        }
-        for (let i = 0; i < this.cards_Initintermediary.length; i++) {
-            let cardNode = cc.instantiate(this.CardPrefab);
-            if (cardNode) {
-                cardNode.position = this.Cell_intermediary_test.position;
-                let card = cardNode.getComponent(BaseCard);
-                if (card) {
-                    card.Init(this.cards_Initintermediary[i].number_index, this.cards_Initintermediary[i].type, this.Cell_intermediary_test, this);
-                }
-                this.Cell_intermediary_test.getComponent(Cell).Add(card);
-            }
-        }
-        this.Cell_intermediary_test.setPosition(0, -55);
-        this.Cell_intermediary_test.getComponent(Cell).Set_positionCell_intermediary(this.Cell_intermediary_test.position);
-        this.Cells[tagCell - 1].RemoveCards_intermediryOutput();
-    }
     public Shuffle() {
         this.cards = this.cards !== null && this.cards !== undefined ? this.cards : this.cards = [];
         let n = this.cards.length;
@@ -401,50 +366,33 @@ export default class Main extends cc.Component {
             .start();
     }
     public GetDataForCardsEntermediary(base_card: BaseCard[], ID_cell: number) {
+        let parentNode: cc.Node = new cc.Node();
         this.ID_cell_old = ID_cell;
         this.cards_entermediary = [];
         for (let i = 0; i < base_card.length; i++) {
-            this.cards_entermediary.push(base_card[i]);
+            if (i == 0) {
+                parentNode = base_card[i].node;
+            }
+            if (i > 0) {
+                this.cards_entermediary.push(base_card[i]);
+            }
         }
         if (this.cards_entermediary) {
-            this.SetDataToCardIntermediary();
-            // this.SetDataToCardIntermediary_Test();
+            this.SetDataToCardIntermediary(parentNode);
         }
     }
-    SetDataToCardIntermediary_Test() {
-        let worldPositionCard = this.cards_entermediary[0].node.parent.convertToWorldSpaceAR(this.cards_entermediary[0].node.position);
-        let localPositionCard_entermediary_test = this.Cell_intermediary_test.parent.convertToNodeSpaceAR(worldPositionCard);
-        this.Cell_intermediary_test.setPosition(localPositionCard_entermediary_test.x, localPositionCard_entermediary_test.y + 55);
-        this.Cell_intermediary_test.setSiblingIndex(9);
-        this.Cell_intermediary_test.getComponent(Cell).Cards_intermediaryInput = [];
-        this.Cell_intermediary_test.getComponent(Cell).Set_positionCell_intermediary(this.Cell_intermediary_test.position);
-        this.InitCell_Intermediary(this.cards_entermediary);
-
-    }
-    public SetDataToCardIntermediary() {
-        let worldPositionCard = this.cards_entermediary[0].node.parent.convertToWorldSpaceAR(this.cards_entermediary[0].node.position);
-        let localPositionCard_entermediary = this.Cell_intermediary.parent.convertToNodeSpaceAR(worldPositionCard);
-        this.Cell_intermediary.setPosition(localPositionCard_entermediary.x, localPositionCard_entermediary.y + 55);
-        this.Cell_intermediary.setSiblingIndex(9);
-        this.Cell_intermediary.getComponent(Cell).Cards_intermediaryInput = [];
-        this.Cell_intermediary.getComponent(Cell).Set_positionCell_intermediary(this.Cell_intermediary.position);
+    public SetDataToCardIntermediary(parentNode: cc.Node) {
+        parentNode.addComponent(Cell);
+        let colliderChildrenNode = parentNode.getChildByName("CardCollider");
+        if (colliderChildrenNode) {
+            colliderChildrenNode.addComponent(CardColliders);
+        }
+        parentNode.getComponent(Cell).Cards_intermediaryInput = [];
+        parentNode.getComponent(Cell).Tag = 20;
+        parentNode.parent.parent.setSiblingIndex(8);
         for (let i = 0; i < this.cards_entermediary.length; i++) {
-            this.Cell_intermediary.getComponent(Cell).Add_cardEntermediary(this.cards_entermediary[i], this.ID_cell_old);
-        }
-    }
-    public SetInputCardsEnterCellOld(id_CellOld: number) {
-        console.log("nhay vao day main");
-        this.ID_cell_old = id_CellOld;
-        let childs = this.Cell_intermediary.children;
-        let test = [];
-        for (let i = 0; i < childs.length; i++) {
-            this.Cells[this.ID_cell_old].Add_InputCardsEnterCellOld(childs[i].getComponent(BaseCard));
-            test.push(childs[i])
-        }
-        this.Cell_intermediary.removeAllChildren();
-        for (let i = 0; i < test.length; i++) {
-            this.Cells[this.ID_cell_old].node.addChild(test[i]);
-            this.Cells[this.ID_cell_old].SetPositionAllChildsAndOffActive();
+            parentNode.getComponent(BaseCard).Select(true);
+            parentNode.getComponent(Cell).Add_cardEntermediary(this.cards_entermediary[i], this.ID_cell_old);
         }
     }
     public SetCardsCollider() {
@@ -461,18 +409,22 @@ export default class Main extends cc.Component {
         if (TagCellBottom == 10 || TagCellBottom == 11 || TagCellBottom == 12 || TagCellBottom == 13) {
             for (let i = 0; i < this.FreeCell.length; i++) {
                 if (i == TagCellBottom - 10) {
+                    console.log("check tag free cell");
                     Cell_child = this.FreeCell[i].node.children;
                 }
             }
         } else {
+            console.log("check tag cell");
             Cell_child = this.Cells[TagCellBottom - 1].node.children;
         }
         let baseCard = Cell_child[indexCard].getComponent(BaseCard);
         this.InitTypeAceCell();
         for (let i = 0; i < this.AceCell.length; i++) {
             if (this.AceCell[i].getComponent(AceCell).cards.length == 0) {
+                console.log("cards.length == 0");
                 if (baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
                     baseCard.number_index == 1) {
+                    console.log("baseCard.number_index == 1");
                     this.CounMovingAcecell++;
                     this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
                     this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
@@ -500,8 +452,10 @@ export default class Main extends cc.Component {
                 }
             }
             else if (this.AceCell[i].getComponent(AceCell).cards.length >= 1) {
+                console.log("cards.length >= 1");
                 if (baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
                     this.AceCell[i].getComponent(AceCell).GetBaseCardForEndOfArr().number_index == baseCard.number_index - 1) {
+                    console.log("number_index == baseCard.number_index - 1");
                     this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
                     this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
                     this.CounMovingAcecell++;
@@ -531,8 +485,11 @@ export default class Main extends cc.Component {
         }
         if (this.CounMovingAcecell == 0) {
             if (TagCellBottom == 1 || TagCellBottom == 2 || TagCellBottom == 3 || TagCellBottom == 4 ||
-                TagCellBottom == 5 || TagCellBottom == 6 || TagCellBottom == 7 || TagCellBottom == 8)
+                TagCellBottom == 5 || TagCellBottom == 6 || TagCellBottom == 7 || TagCellBottom == 8) {
+                console.log("this.CounMovingAcecell == 0 CardMoveToInputFreeCell");
                 this.CardMoveToInputFreeCell(baseCard, TagCellBottom);
+            }
+
         } else {
             this.CounMovingAcecell = 0;
         }
@@ -540,6 +497,7 @@ export default class Main extends cc.Component {
     public CardMoveToInputFreeCell(baseCard: BaseCard, TagCellBottom: number) {
         for (let i = 0; i < this.FreeCell.length; i++) {
             if (this.FreeCell[i].cards.length == 0) {
+                console.log("this.FreeCell[i].cards.length == 0");
                 let worldPosFreeCell = this.FreeCell[i].node.parent.convertToWorldSpaceAR(this.FreeCell[i].node.position);
                 let converToLocalCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosFreeCell);
                 baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
@@ -558,6 +516,7 @@ export default class Main extends cc.Component {
                     .start();
                 break;
             } else {
+                console.log("this.FreeCell[i].cards.length != 0");
                 this.Cells[TagCellBottom - 1].ResetCardsIndex();
                 this.Cells[TagCellBottom - 1].EmitCheckChildsInCell(TagCellBottom);
                 this.SetCardsCollider();
@@ -603,6 +562,7 @@ export default class Main extends cc.Component {
         }
     }
     public DeleteColliderNodeInCell(tagCell: number) {
+        console.log("delete collider top cell");
         for (let i = 0; i < this.Cells.length; i++) {
             if (this.Cells[i].Tag == tagCell) {
                 let colliderNode = this.Cells[i].node.getChildByName("ColliderNode");

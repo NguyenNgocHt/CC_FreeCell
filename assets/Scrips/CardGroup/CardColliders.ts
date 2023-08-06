@@ -13,7 +13,6 @@ const { ccclass, property } = cc._decorator;
 export default class CardColliders extends cc.Component {
     private _baseCard_other: BaseCard = new BaseCard();
     private _baseCard_self: BaseCard = new BaseCard();
-    private self_cards_freecell: BaseCard[];
     private isInputOK: boolean = false;
     onCollisionEnter(other, self) {
     }
@@ -32,18 +31,7 @@ export default class CardColliders extends cc.Component {
                                 && this._baseCard_other.tag_group != 12 && this._baseCard_other.tag_group != 13
                                 && this._baseCard_other.tag_group != 14 && this._baseCard_other.tag_group != 15
                                 && this._baseCard_other.tag_group != 16 && this._baseCard_other.tag_group != 17) {
-                                if (this._baseCard_self.tag_group == 9 && this._baseCard_other.tag_group != 9) {
-                                    console.log("collider tag_9");
-                                    PlayAudio.Instance.AudioEffect_swap();
-                                    self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
-                                    other.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
-                                    self.node.parent.parent.getComponent(Cell).SetOutputCell(other.node.parent.parent.getComponent(Cell).id)
-                                    this.node.parent.parent.getComponent(Cell).EmitCheckChildsInCell(this._baseCard_self.tag_group);
-                                    this.node.parent.parent.getComponent(Cell).SetPositionAllChild();
-                                    this.node.parent.parent.getComponent(Cell).EmitUpdateCountMove();
-                                    this.node.parent.parent.getComponent(Cell).EmitSetIndexCellToorigin(this._baseCard_self.tag_group);
-                                }
-                                else if (this._baseCard_self.tag_group == 10 || this._baseCard_self.tag_group == 11 ||
+                                if (this._baseCard_self.tag_group == 10 || this._baseCard_self.tag_group == 11 ||
                                     this._baseCard_self.tag_group == 12 || this._baseCard_self.tag_group == 13) {
                                     PlayAudio.Instance.AudioEffect_swap();
                                     self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
@@ -71,18 +59,7 @@ export default class CardColliders extends cc.Component {
                 } else {
                     if (self.node.parent.getComponent(CardMove).Mouse_status == MOUSE_STATUS.MOUSE_UP &&
                         other.node.parent.name == "ColliderNode") {
-                        if (self.node.parent.getComponent(BaseCard).tag_group == 9 &&
-                            other.node.parent.getComponent(BaseCard).tag_group != 9) {
-                            PlayAudio.Instance.AudioEffect_swap();
-                            self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
-                            other.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
-                            self.node.parent.parent.getComponent(Cell).SetOutputCell(other.node.parent.parent.getComponent(Cell).id)
-                            this.node.parent.parent.getComponent(Cell).EmitCheckChildsInCell(this._baseCard_self.tag_group);
-                            this.node.parent.parent.getComponent(Cell).EmitDeleteColliderInCell(this._baseCard_other.tag_group);
-                            this.node.parent.parent.getComponent(Cell).SetPositionAllChild();
-                            this.node.parent.parent.getComponent(Cell).EmitUpdateCountMove();
-                        }
-                        else if (this._baseCard_self.tag_group == 10 || this._baseCard_self.tag_group == 11 ||
+                        if (this._baseCard_self.tag_group == 10 || this._baseCard_self.tag_group == 11 ||
                             this._baseCard_self.tag_group == 12 || this._baseCard_self.tag_group == 13) {
                             PlayAudio.Instance.AudioEffect_swap();
                             self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
@@ -96,7 +73,6 @@ export default class CardColliders extends cc.Component {
                         }
                         else {
                             PlayAudio.Instance.AudioEffect_swap();
-                            // TopGroupManager.Instance.ShowCountMove(1);
                             self.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
                             other.node.parent.getComponent(CardMove).Mouse_status = MOUSE_STATUS.NO_STATUS;
                             self.node.parent.getComponent(BaseCard).SetIsInputCell(true);

@@ -26,8 +26,6 @@ export class BaseCard extends cc.Component {
     private freeCell: FreeCell;
     public id: number;
     private imagesPath: PATH_TO_CARDS;
-    private width: number = 85;
-    private hight: number = 110;
     private originIndex: number = 0;
     public tag_group: number = 0
     private colliderNode: cc.Node = null;

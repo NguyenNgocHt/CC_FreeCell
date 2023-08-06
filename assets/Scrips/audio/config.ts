@@ -21,6 +21,7 @@ export const GAME_LISTEN_TO_EVENTS = {
     DATA_CLOSE_HELP_POPUP: "data-close-help-popup",
     DATA_THEMES_NUMBER_SET: "data-themes-number-set",
     DATA_SETINDEX_CELL_TO_ORIGIN: "data-setIndex-cell-to-origin",
+    DATA_CHILDREN_FOR_CELL_TAG20: "data-children-for-cell-tag20",
 }
 export enum MOUSE_ONCLICK_LEFT_RIGHT_STATUS {
     NO_STATUS = 0,

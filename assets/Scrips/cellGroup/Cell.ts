@@ -15,6 +15,7 @@ export default class Cell extends cc.Component {
     public Cards_intermediaryInput: BaseCard[];
     private carts_intermediaryOutput: BaseCard[];
     private cards_inputCardEnterCellOld: BaseCard[];
+    private cards_comeBackCellOrigin: BaseCard[];
     private cards_temporary: BaseCard[];
     private cards_index: number[];
     private card_copyComparison: BaseCard[];
@@ -27,6 +28,7 @@ export default class Cell extends cc.Component {
     private IndexCard_onclick: number = 0;
     private PosTouchStart: cc.Vec2 = new cc.Vec2(0, 0);
     private IndexCellOrigin: number = 0;
+    private isCellMove: boolean = false;
     start() {
         this.cards = [];
         if (this.Tag == 10 || this.Tag == 11 || this.Tag == 12 || this.Tag == 13) {
@@ -60,30 +62,7 @@ export default class Cell extends cc.Component {
         card.Belong(this.node, this.cards.length);
         this.SetPositionAllChild();
     }
-    public Add_cardEntermediary(card: BaseCard, ID_cell_old: number) {
-        this.id_cell_old = ID_cell_old;
-        if (!this.Cards_intermediaryInput) {
-            this.Cards_intermediaryInput = [];
-        }
-        if (!this.Cards_intermediaryInput.includes(card)) {
-            this.Cards_intermediaryInput.push(card);
-        }
-        let cardPositionInNodePrentOld = card.node.position;
-        let wordPositionCardInNodeParenOld = card.node.parent.convertToWorldSpaceAR(cardPositionInNodePrentOld);
-        let newPositionCardInNodeParentNew = this.node.convertToNodeSpaceAR(wordPositionCardInNodeParenOld);
-        if (card.node.parent) {
-            card.node.removeFromParent();
-        }
-        this.node.addChild(card.node);
-        card.node.setPosition(newPositionCardInNodeParentNew);
-        card.Belong(this.node, this.Cards_intermediaryInput.length);
-        cc.tween(this.node)
-            .delay(0.01)
-            .call(() => {
-                this.SetPositionAllChild_cardEntermediary();
-            })
-            .start();
-    }
+
     public Add_InputCardsEnterCellOld(card: BaseCard) {
         if (!this.cards) {
             this.cards = [];
@@ -105,10 +84,20 @@ export default class Cell extends cc.Component {
             let childs = this.node.children;
             for (let i = 0; i < childs.length; i++) {
                 childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = false;
-                if (childs[i].getComponent(BaseCard).id == 1) {
+                if (i == 0) {
                     childs[i].setPosition(this.node.position.x, this.node.position.y)
                 } else {
                     childs[i].setPosition(this.node.position.x, this.node.position.y - i * 50);
+                }
+                if (childs[i].getComponent(Cell)) {
+                    if (childs[i].getComponent(Cell).Tag == 20) {
+                        childs[i].getComponent(Cell).get_childCardNodeInCellTag20();
+                        let collider = childs[i].getChildByName("CardCollider");
+                        if (collider) {
+                            collider.removeComponent(CardColliders);
+                        }
+                        childs[i].removeComponent(Cell);
+                    }
                 }
             }
         } else if (this.Tag == 10 || this.Tag == 11 || this.Tag == 12 || this.Tag == 13) {
@@ -123,50 +112,9 @@ export default class Cell extends cc.Component {
                 childs[i].removeComponent(CardMove);
                 childs[i].removeComponent(CardColliders);
             }
-        } else if (this.Tag == 20) {
-            let childs = this.node.children;
-            for (let i = 0; i < childs.length; i++) {
-                childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = true;
-                if (i == 0) {
-                    childs[i].setPosition(this.node.position.x, this.node.position.y)
-                    childs[i].getComponent(CardMove).isMoving = true;
-                } else {
-                    childs[i].setPosition(this.node.position.x, this.node.position.y - i * 50);
-                }
-            }
         }
     }
-    SetPositionAllChild_cardEntermediary() {
-        let childs = this.node.children;
-        for (let i = 0; i < childs.length; i++) {
-            if (childs[i].hasEventListener(cc.Node.EventType.TOUCH_START)) {
-                console.log("Node has registered TOUCH_START event.");
-            } else {
-                console.log("Node hasn't registered TOUCH_START event.");
-            }
-            if (childs[i].hasEventListener(cc.Node.EventType.TOUCH_MOVE)) {
-                console.log("Node has registered TOUCH_START event.");
-            } else {
-                console.log("Node hasn't registered TOUCH_START event.");
-            }
-            if (childs[i].hasEventListener(cc.Node.EventType.TOUCH_END)) {
-                console.log("Node has registered TOUCH_START event.");
-            } else {
-                console.log("Node hasn't registered TOUCH_START event.");
-            }
-            childs[i].getComponent(CardMove).RegisterEvent();
-            if (i == 0) {
-                childs[i].getComponent(CardMove).isMoving = true;
-            }
-            childs[i].getComponent(BaseCard).AddCollider();
-            cc.tween(this.node)
-                .delay(0.1)
-                .call(() => {
-                    childs[i].getComponent(BaseCard).Select(true);
-                })
-                .start();
-        }
-    }
+
     SetPositionAllChild_InputCardsEnterCellOld() {
         let childs = this.node.children;
         for (let i = 0; i < childs.length; i++) {
@@ -320,6 +268,7 @@ export default class Cell extends cc.Component {
             this.SetIsMovingCard(this.IndexCard_onclick);
         }
         else if (mouse_onclickStatus == MOUSE_ONCLICK_LEFT_RIGHT_STATUS.MOUSE_RIGHT) {
+            console.log("onclick double touch");
             this.node.parent.setSiblingIndex(8);
             this.SetMovingCardToCellTop(this.IndexCard_onclick);
         }
@@ -341,8 +290,16 @@ export default class Cell extends cc.Component {
                     this.ResetCardsIndex();
                 } else {
                     if (this.CheckBaseCard(i)) {
+                        this.isCellMove = true;
                         this.Emit_data_toMain();
                         this.ResetCardsIndex();
+                        cc.tween(this.node)
+                            .delay(0.5)
+                            .call(() => {
+                                this.isCellMove = false;
+                                console.log("isCellMove", this.isCellMove);
+                            })
+                            .start();
                     } else {
                         childs[i].getComponent(CardMove).isMoving = false;
                         this.ResetCardsIndex();
@@ -431,6 +388,29 @@ export default class Cell extends cc.Component {
             }
         }
     }
+    public GetCardsComebackCellOld(cardsForCellTag20: BaseCard[], Cardchildren: BaseCard) {
+        if (this.Tag != 20) {
+            let cards: BaseCard[] = [];
+            let test = [];
+            if (cardsForCellTag20) {
+                for (let i = 0; i < cardsForCellTag20.length; i++) {
+                    cards.push(cardsForCellTag20[i]);
+                    test.push(cardsForCellTag20[i]);
+                }
+                for (let i = 0; i < cards.length; i++) {
+                    this.Add_InputCardsEnterCellOld(cards[i]);
+                }
+                for (let i = 0; i < cards.length; i++) {
+                    cards[i].node.removeFromParent();
+                }
+                //add child cell old
+                for (let i = 0; i < test.length; i++) {
+                    this.node.addChild(test[i].node);
+                    this.SetPositionAllChildsAndOffActive();
+                }
+            }
+        }
+    }
     //emit to main
     Emit_data_toMain() {
         this.RemoveCardInCards();
@@ -439,10 +419,22 @@ export default class Cell extends cc.Component {
     //gui du lieu cell va id card cho main de check xem cell top co chua duoc card bottom cell khong
     SetMovingCardToCellTop(indexMax: number) {
         let childs = this.node.children;
-        if (indexMax == childs.length - 1) {
+        console.log("indexMax and childsLength - 1", indexMax, childs.length - 1, this.isCellMove);
+        if (indexMax == childs.length - 1 && !this.isCellMove) {
+            console.log("emit to main onclick double Touch");
+            let childs = this.node.children;
+            for (let i = 0; i < childs.length; i++) {
+                if (i == indexMax) {
+                    let colliderNode = childs[i].getChildByName("CardCollider");
+                    if (colliderNode) {
+                        colliderNode.removeComponent(CardColliders);
+                    }
+                }
+            }
             this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_ONCLICK_BUTTON_RIGHT, this.Tag, indexMax);
         } else {
             this.ResetCardsIndex();
+            this.isCellMove = false;
         }
     }
     public SetOutputCell(id_cell_input: number) {
@@ -467,5 +459,69 @@ export default class Cell extends cc.Component {
     }
     public EmitSetIndexCellToorigin(tagCell: number) {
         this.node.emit(GAME_LISTEN_TO_EVENTS.DATA_SETINDEX_CELL_TO_ORIGIN, tagCell);
+    }
+    //******************************************TAGCELL 20**************************************************** */
+    public Add_cardEntermediary(card: BaseCard, ID_cell_old: number) {
+        this.id_cell_old = ID_cell_old;
+        if (!this.Cards_intermediaryInput) {
+            this.Cards_intermediaryInput = [];
+        }
+        if (!this.Cards_intermediaryInput.includes(card)) {
+            this.Cards_intermediaryInput.push(card);
+        }
+        let cardPositionInNodePrentOld = card.node.position;
+        let wordPositionCardInNodeParenOld = card.node.parent.convertToWorldSpaceAR(cardPositionInNodePrentOld);
+        let newPositionCardInNodeParentNew = this.node.convertToNodeSpaceAR(wordPositionCardInNodeParenOld);
+        if (card.node.parent) {
+            card.node.removeFromParent();
+        }
+        this.node.addChild(card.node);
+        card.node.setPosition(newPositionCardInNodeParentNew);
+        // card.Belong(this.node, this.Cards_intermediaryInput.length);
+        cc.tween(this.node)
+            .delay(0.01)
+            .call(() => {
+                this.SetPositionAllChild_cardEntermediary();
+            })
+            .start();
+    }
+    SetPositionAllChild_cardEntermediary() {
+        if (this.Tag == 20) {
+            this.node.getComponent(BaseCard).Select(true);
+            this.node.getComponent(CardMove).isMoving = true;
+            let childs = this.node.children;
+            for (let i = 0; i < childs.length; i++) {
+                if (childs[i].name == "carrdNode") {
+                    let collider = childs[i].getChildByName("CardCollider");
+                    if (collider) {
+                        if (collider.getComponent(CardColliders)) {
+                            collider.removeComponent(CardColliders);
+                        }
+                    }
+                    cc.tween(this.node)
+                        .delay(0.01)
+                        .call(() => {
+                            childs[i].getComponent(BaseCard).imgSelect.getComponent(cc.Sprite).enabled = true;
+                        })
+                        .start();
+                }
+            }
+        }
+    }
+    //nha node childen ra de chuyen ve node goc
+    get_childCardNodeInCellTag20() {
+        if (this.Tag == 20) {
+            this.cards_comeBackCellOrigin = [];
+            let childs = this.node.children;
+            for (let i = 0; i < childs.length; i++) {
+                if (childs[i].name == "carrdNode") {
+                    this.cards_comeBackCellOrigin.push(childs[i].getComponent(BaseCard));
+                }
+            }
+            this.EmitToChildrenCell();
+        }
+    }
+    EmitToChildrenCell() {
+        this.node.parent.getComponent(Cell).GetCardsComebackCellOld(this.cards_comeBackCellOrigin, this.node.getComponent(BaseCard));
     }
 }

@@ -4,6 +4,7 @@ import Cell from "../cellGroup/Cell";
 import { GameSave } from "../gameData/SaveData";
 import FreeCell from "../cellGroup/FreeCell";
 import PlayAudio from "../audio/PlayAuido";
+import CardColliders from "./CardColliders";
 //card moving
 const { ccclass, property } = cc._decorator;
 @ccclass
@@ -22,7 +23,7 @@ export default class CardMove extends cc.Component {
     private indexOld_parent: number;
     private indexOld_parent_parent_parent: number;
     private TouchCount: number = 0;
-    private DoubleTouchTime: number = 0.5;
+    private DoubleTouchTime: number = 0.3;
     private touchStatus: TOUCH_STATUS = TOUCH_STATUS.NO_STATUS;
     private touchStartPos: cc.Vec2 = new cc.Vec2(0, 0);
     protected onLoad(): void {
@@ -79,14 +80,10 @@ export default class CardMove extends cc.Component {
         }
     }
     private onCardTouchMove(event: cc.Event.EventTouch) {
-        console.log("isMoving");
         if (this.isMoving) {
             const touchPos = event.getLocation();
             const delta = touchPos.sub(this.touchStartPos);
-            if (this.node.getComponent(BaseCard).tag_group == 9 || this.node.getComponent(BaseCard).tag_group == 20) {
-                this.node.parent.x += delta.x;
-                this.node.parent.y += delta.y;
-                this.touchStartPos = touchPos;
+            if (this.node.getComponent(BaseCard).tag_group == 9) {
             } else {
                 const mousePos = event.getLocation();
                 const newPos = new cc.Vec3(mousePos.x, mousePos.y, 0);
@@ -111,28 +108,33 @@ export default class CardMove extends cc.Component {
     public CardMovingOrigin() {
         if (!this.isInputCell) {
             this.Mouse_status = MOUSE_STATUS.NO_STATUS;
-            if (this.node.getComponent(BaseCard).tag_group == 9 || this.node.getComponent(BaseCard).tag_group == 20) {
-                cc.tween(this.node.parent)
-                    .to(0.1, { position: new cc.Vec3(this.node.parent.getComponent(Cell).posCell_intermediry) })
-                    .call(() => {
-                        this.isMoving = false;
-                        this.EmitOutputCell();
-                        PlayAudio.Instance.AudioEffect_swap();
-                    })
-                    .start();
-            } else {
-                cc.tween(this.node)
-                    .to(0.1, { position: new cc.Vec3(this.originPosition) })
-                    .call(() => {
+            cc.tween(this.node)
+                .to(0.1, { position: new cc.Vec3(this.originPosition) })
+                .call(() => {
+                    if (this.node.getComponent(Cell)) {
+                        if (this.node.getComponent(Cell).Tag == 20) {
+                            PlayAudio.Instance.AudioEffect_swap();
+                            this.isMoving = false;
+                            this.node.getComponent(BaseCard).Select(false);
+                            this.node.getComponent(Cell).get_childCardNodeInCellTag20();
+                            this.node.removeComponent(Cell);
+                            let colliderNode = this.node.getChildByName("CardCollider");
+                            if (colliderNode) {
+                                if (colliderNode.getComponent(CardColliders)) {
+                                    colliderNode.removeComponent(CardColliders);
+                                }
+                            }
+                        }
+                    }
+                    else {
                         this.isMoving = false;
                         this.node.getComponent(BaseCard).Select(false);
                         this.node.parent.getComponent(Cell).SetOriginCellIndex();
                         this.SetOilIndexNode();
                         PlayAudio.Instance.AudioEffect_swap();
-                    })
-                    .start();
-            }
-
+                    }
+                })
+                .start();
         } else {
             this.Mouse_status = MOUSE_STATUS.NO_STATUS;
             this.isMoving = false;
@@ -178,7 +180,5 @@ export default class CardMove extends cc.Component {
             this.node.parent.setSiblingIndex(this.indexOld_parent);
             this.node.parent.parent.parent.setSiblingIndex(this.indexOld_parent_parent_parent);
         }
-    }
-    protected update(dt: number): void {
     }
 }
