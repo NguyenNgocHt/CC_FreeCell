@@ -409,22 +409,18 @@ export default class Main extends cc.Component {
         if (TagCellBottom == 10 || TagCellBottom == 11 || TagCellBottom == 12 || TagCellBottom == 13) {
             for (let i = 0; i < this.FreeCell.length; i++) {
                 if (i == TagCellBottom - 10) {
-                    console.log("check tag free cell");
                     Cell_child = this.FreeCell[i].node.children;
                 }
             }
         } else {
-            console.log("check tag cell");
             Cell_child = this.Cells[TagCellBottom - 1].node.children;
         }
         let baseCard = Cell_child[indexCard].getComponent(BaseCard);
         this.InitTypeAceCell();
         for (let i = 0; i < this.AceCell.length; i++) {
             if (this.AceCell[i].getComponent(AceCell).cards.length == 0) {
-                console.log("cards.length == 0");
                 if (baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
                     baseCard.number_index == 1) {
-                    console.log("baseCard.number_index == 1");
                     this.CounMovingAcecell++;
                     this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
                     this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
@@ -452,10 +448,8 @@ export default class Main extends cc.Component {
                 }
             }
             else if (this.AceCell[i].getComponent(AceCell).cards.length >= 1) {
-                console.log("cards.length >= 1");
                 if (baseCard.type == this.AceCell[i].getComponent(AceCell).CardTypeGroup &&
                     this.AceCell[i].getComponent(AceCell).GetBaseCardForEndOfArr().number_index == baseCard.number_index - 1) {
-                    console.log("number_index == baseCard.number_index - 1");
                     this.TopManager.getComponent(TopGroupManager).InitScore(baseCard.number_index);
                     this.TopManager.getComponent(TopGroupManager).ShowCountMove(1);
                     this.CounMovingAcecell++;
@@ -486,7 +480,6 @@ export default class Main extends cc.Component {
         if (this.CounMovingAcecell == 0) {
             if (TagCellBottom == 1 || TagCellBottom == 2 || TagCellBottom == 3 || TagCellBottom == 4 ||
                 TagCellBottom == 5 || TagCellBottom == 6 || TagCellBottom == 7 || TagCellBottom == 8) {
-                console.log("this.CounMovingAcecell == 0 CardMoveToInputFreeCell");
                 this.CardMoveToInputFreeCell(baseCard, TagCellBottom);
             }
 
@@ -497,7 +490,6 @@ export default class Main extends cc.Component {
     public CardMoveToInputFreeCell(baseCard: BaseCard, TagCellBottom: number) {
         for (let i = 0; i < this.FreeCell.length; i++) {
             if (this.FreeCell[i].cards.length == 0) {
-                console.log("this.FreeCell[i].cards.length == 0");
                 let worldPosFreeCell = this.FreeCell[i].node.parent.convertToWorldSpaceAR(this.FreeCell[i].node.position);
                 let converToLocalCard = baseCard.node.parent.convertToNodeSpaceAR(worldPosFreeCell);
                 baseCard.node.getChildByName("CardCollider").removeComponent(CardColliders);
@@ -516,7 +508,6 @@ export default class Main extends cc.Component {
                     .start();
                 break;
             } else {
-                console.log("this.FreeCell[i].cards.length != 0");
                 this.Cells[TagCellBottom - 1].ResetCardsIndex();
                 this.Cells[TagCellBottom - 1].EmitCheckChildsInCell(TagCellBottom);
                 this.SetCardsCollider();
@@ -562,7 +553,6 @@ export default class Main extends cc.Component {
         }
     }
     public DeleteColliderNodeInCell(tagCell: number) {
-        console.log("delete collider top cell");
         for (let i = 0; i < this.Cells.length; i++) {
             if (this.Cells[i].Tag == tagCell) {
                 let colliderNode = this.Cells[i].node.getChildByName("ColliderNode");
